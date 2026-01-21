@@ -14,6 +14,7 @@ return [
     */
 
     'name' => env('APP_NAME', 'Inclinique Store'),
+    'asset_url' => env('APP_ASSET_URL', 'https://admin.incliniquestore.com'),
 
     /*
     |--------------------------------------------------------------------------

@@ -22,6 +22,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'whatsapp',
+        'gender',
+        'branch_store_id',
+        'member_level_id',
+        'status',
     ];
 
     /**
@@ -46,4 +51,41 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Scope active
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(BranchStore::class, 'branch_store_id');
+    }
+
+    public function memberLevel()
+    {
+        return $this->belongsTo(MemberLevel::class, 'member_level_id');
+    }
+
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
+
+    public function defaultAddress()
+    {
+        return $this->hasOne(Address::class)->where('is_default', true);
+    }
+
+    public function ensureDefaultAddress()
+    {
+        if (!$this->addresses()->where('is_default', true)->exists()) {
+            $first = $this->addresses()->first();
+            if ($first) {
+                $first->update(['is_default' => true]);
+            }
+        }
+    }
+
 }
