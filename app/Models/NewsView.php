@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class NewsView extends Model
 {
+    protected $table = 'news_views';
     protected $fillable = [
         'news_id',
         'user_id',

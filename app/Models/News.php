@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class News extends Model
 {
     protected $table = 'news';
-
     protected $fillable = [
         'title',
         'slug',
@@ -21,6 +20,10 @@ class News extends Model
         'meta_description',
         'meta_keywords',
         'user_id'
+    ];
+
+    protected $casts = [
+        'is_featured' => 'boolean',
     ];
 
     public function viewsLogs()
