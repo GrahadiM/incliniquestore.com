@@ -36,7 +36,7 @@
 
         <button
             class="btn-add-to-cart btn-block border border-primary-orange bg-primary-orange text-white text-sm font-semibold py-2 rounded-bl-[48px] rounded-tr-[48px] md:rounded-bl-[12px] md:rounded-tr-[12px] hover:bg-transparent hover:text-primary-orange transition duration-300 flex items-center justify-center space-x-2 mb-1"
-            onclick="addToCart({{ $product->id }})"
+            onclick="addToCart({{ $product->id }}, event)"
         >
             <i class="fas fa-shopping-cart"></i>
             <span>Add to Cart</span>
@@ -54,8 +54,52 @@
 </div>
 
 @push('scripts')
-
     <script>
-    </script>
+        function addToCart(productId, event) {
+            event.preventDefault();
+            event.stopPropagation();
 
+            const button = event.currentTarget;
+            const originalHTML = button.innerHTML;
+
+            button.disabled = true;
+            button.innerHTML = 'Adding...';
+
+            fetch("{{ route('frontend.cart.add') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    qty: 1
+                })
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    window.location.href = "{{ route('login') }}";
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+
+                if (data.success) {
+                    showToast(data.message || 'Produk berhasil ditambahkan ke keranjang', 'success');
+                    updateCartBadge(data.cart_count ?? null);
+                } else {
+                    showToast(data.message || 'Gagal menambahkan ke keranjang', 'error');
+                }
+            })
+            .catch(() => {
+                showToast('Terjadi kesalahan sistem', 'error');
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            });
+        }
+    </script>
 @endpush

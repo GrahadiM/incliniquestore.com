@@ -1,6 +1,5 @@
-<div
-    class="bg-white rounded-br-[24px] rounded-tl-[24px] hover:shadow-lg hover:shadow-orange-500/50 transition duration-300"
->
+
+<div class="bg-white rounded-br-[24px] rounded-tl-[24px] hover:shadow-lg hover:shadow-orange-500/50 transition duration-300">
     <!-- IMAGE -->
     <div
         class="relative cursor-pointer"
@@ -65,9 +64,8 @@
         fetch("{{ route('frontend.cart.add') }}", {
             method: "POST",
             headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
                 "Content-Type": "application/json",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
-                "Accept": "application/json"
             },
             body: JSON.stringify({
                 product_id: productId,

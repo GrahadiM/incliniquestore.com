@@ -9,7 +9,7 @@
                 $label = $menu['label'];
                 $route = $menu['route'];
 
-                if ($menu['key'] === 'account') {
+                if ($menu['key'] === 'account' || $menu['route'] === 'login') {
                     if (auth()->check()) {
                         $label = 'Account';
                         $route = 'customer.dashboard';
@@ -22,14 +22,22 @@
                 $isActive = request()->routeIs($route);
             @endphp
 
-            <a href="{{ route($route) }}"
-               class="flex flex-col items-center justify-center py-2 px-4
-                      {{ $isActive ? 'text-primary-orange border-b-2 border-primary-orange' : 'text-gray-700' }}
-                      hover:text-primary-orange transition-colors">
-
+            <a
+                id="{{ $menu['key'] }}"
+                {{-- href="{{ route($route) }}" --}}
+                class="flex flex-col items-center justify-center py-2 px-4
+                {{ $isActive ? 'text-primary-orange border-b-2 border-primary-orange' : 'text-gray-700' }}
+                hover:text-primary-orange transition-colors">
                 <i class="fas {{ $menu['icon'] }} text-2xl"></i>
                 <span class="text-xs font-medium">{{ $label }}</span>
             </a>
+
+            <script>
+                document.querySelector('#{{ $menu['key'] }}').addEventListener('click', function() {
+                    window.location.href = "{{ route($route) }}";
+                    console.log("Navigating to {{ $route }}");
+                });
+            </script>
 
         @endforeach
 

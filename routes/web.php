@@ -41,7 +41,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-
     Route::middleware(['active.user', 'role:customer|member'])->group(function () {
         Route::name('frontend.')->group(function () {
             Route::controller(App\Http\Controllers\Frontend\CartController::class)->group(function () {

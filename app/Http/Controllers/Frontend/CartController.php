@@ -2,20 +2,52 @@
 
 namespace App\Http\Controllers\Frontend;
 
-use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class CartController extends Controller
 {
     public function index()
     {
-        return view('frontend.cart.index');
+        $data = Cart::with('product')
+            ->where('user_id', auth()->id())
+            ->get();
+
+        $subtotal = $data->sum(fn ($item) =>
+            $item->product->price * $item->qty
+        );
+
+        return view('frontend.cart.index', [
+            'data' => $data,
+            'subtotal' => $subtotal,
+        ]);
     }
 
     public function add(Request $request)
-    {
-        // Logic to add item to cart would go here
+{
+        $request->validate([
+            'product_id' => ['required', 'exists:products,id'],
+            'qty' => ['required', 'integer', 'min:1'],
+        ]);
 
-        return response()->json(['message' => 'Item added to cart successfully.']);
+        $cart = Cart::firstOrCreate(
+            [
+                'user_id' => auth()->id(),
+                'product_id' => $request->product_id,
+            ],
+            ['qty' => 0]
+        );
+
+        $cart->increment('qty', $request->qty);
+
+        $cartCount = Cart::where('user_id', auth()->id())->sum('qty');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Produk berhasil ditambahkan ke keranjang',
+            'cart_count' => $cartCount
+        ]);
     }
 }

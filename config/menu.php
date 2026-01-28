@@ -39,16 +39,16 @@ return [
             'icon'  => 'fa-shopping-bag',
         ],
         [
-            'key'   => 'cart',
-            'label' => 'Cart',
-            'route' => 'frontend.cart.index',
-            'icon'  => 'fa-shopping-cart',
-        ],
-        [
             'key'   => 'blog',
             'label' => 'Blog',
             'route' => 'frontend.blog.index',
             'icon'  => 'fa-newspaper',
+        ],
+        [
+            'key'   => 'cart',
+            'label' => 'Cart',
+            'route' => 'frontend.cart.index',
+            'icon'  => 'fa-shopping-cart',
         ],
         [
             'key'   => 'account',
