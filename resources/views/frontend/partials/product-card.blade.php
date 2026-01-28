@@ -56,50 +56,81 @@
 @push('scripts')
     <script>
         function addToCart(productId, event) {
-            event.preventDefault();
-            event.stopPropagation();
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
 
-            const button = event.currentTarget;
-            const originalHTML = button.innerHTML;
+            const button = event?.currentTarget;
+            if (!button) return false;
+
+            const icon = button.querySelector('i');
+            const textSpan = button.querySelector('span');
+
+            const originalIcon = icon.className;
+            const originalText = textSpan.textContent;
+            const originalBg = button.style.backgroundColor;
 
             button.disabled = true;
-            button.innerHTML = 'Adding...';
+            icon.className = 'fas fa-spinner fa-spin';
+            textSpan.textContent = 'Adding...';
 
             fetch("{{ route('frontend.cart.add') }}", {
                 method: "POST",
                 headers: {
                     "X-CSRF-TOKEN": "{{ csrf_token() }}",
                     "Content-Type": "application/json",
+                    "Accept": "application/json",
                 },
                 body: JSON.stringify({
                     product_id: productId,
                     qty: 1
                 })
             })
-            .then(response => {
-                if (response.status === 401) {
+            .then(res => {
+                if (res.status === 401) {
                     window.location.href = "{{ route('login') }}";
-                    return;
+                    return null;
                 }
-                return response.json();
+                return res.json();
             })
             .then(data => {
                 if (!data) return;
 
                 if (data.success) {
-                    showToast(data.message || 'Produk berhasil ditambahkan ke keranjang', 'success');
-                    updateCartBadge(data.cart_count ?? null);
+                    icon.className = 'fas fa-check';
+                    textSpan.textContent = 'Ditambahkan!';
+                    button.style.backgroundColor = '#10B981';
+
+                    if (typeof updateCartBadge === 'function' && data.cart_count !== undefined) {
+                        updateCartBadge(data.cart_count);
+                    }
+
+                    if (typeof showToast === 'function') {
+                        showToast(data.message, 'success');
+                    }
                 } else {
-                    showToast(data.message || 'Gagal menambahkan ke keranjang', 'error');
+                    throw new Error(data.message || 'Gagal menambahkan ke keranjang');
                 }
             })
-            .catch(() => {
-                showToast('Terjadi kesalahan sistem', 'error');
+            .catch(err => {
+                icon.className = originalIcon;
+                textSpan.textContent = originalText;
+
+                if (typeof showToast === 'function') {
+                    showToast(err.message || 'Terjadi kesalahan sistem', 'error');
+                }
             })
             .finally(() => {
-                button.disabled = false;
-                button.innerHTML = originalHTML;
+                setTimeout(() => {
+                    button.disabled = false;
+                    icon.className = originalIcon;
+                    textSpan.textContent = originalText;
+                    button.style.backgroundColor = originalBg;
+                }, 1500);
             });
+
+            return false;
         }
     </script>
 @endpush

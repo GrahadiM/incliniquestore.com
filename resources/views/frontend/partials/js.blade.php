@@ -5,7 +5,7 @@
     function goToProduct(el) {
         const slug = el.dataset.slug;
         console.log(slug);
-        
+
         if (!slug) {
             console.warn('Product slug not found');
             return;
@@ -126,26 +126,6 @@
                     productElement.querySelector('[data-slug]').dataset.slug = product.slug;
                     productElement.querySelector('.btn-view-more').dataset.slug = product.slug;
                     productElement.querySelector('.btn-add-to-cart').dataset.id = product.id;
-
-                    // Add to cart functionality
-                    const addToCartBtn = productElement.querySelector('button');
-                    addToCartBtn.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const icon = this.querySelector('i');
-                        const originalClass = icon.className;
-
-                        icon.className = 'fas fa-check';
-                        this.style.backgroundColor = '#10B981';
-
-                        setTimeout(() => {
-                            icon.className = originalClass;
-                            this.style.backgroundColor = '#FA812F';
-                        }, 1500);
-
-                        alert(`Produk ${product.name} berhasil ditambahkan ke keranjang!`);
-                    });
 
                     searchResultsContainer.appendChild(productElement);
                 });
@@ -270,33 +250,6 @@
             });
         });
 
-        // Add to cart functionality untuk semua tombol keranjang
-        const addToCartButtons = document.querySelectorAll('.btn-add-to-cart');
-        addToCartButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const icon = this.querySelector('i');
-                const originalClass = icon.className;
-                const originalText = this.querySelector('span').textContent;
-
-                // Ubah icon dan teks
-                icon.className = 'fas fa-check';
-                this.querySelector('span').textContent = 'Ditambahkan!';
-                this.style.backgroundColor = '#10B981';
-
-                // Reset setelah 1.5 detik
-                setTimeout(() => {
-                    icon.className = originalClass;
-                    this.querySelector('span').textContent = originalText;
-                    this.style.backgroundColor = '#FA812F';
-                }, 1500);
-
-                alert('Produk berhasil ditambahkan ke keranjang!');
-            });
-        });
-
         // Simulasi login/logout untuk demo
         const loginButton = document.querySelector('.bottom-nav a:nth-child(4)');
         let isLoggedIn = false;
@@ -315,14 +268,6 @@
                         '<i class="fas fa-user text-2xl mb-1"></i><span class="text-xs font-medium">Masuk</span>';
                     this.classList.remove('logged-in');
                 }
-            });
-        }
-
-        // Cart functionality (basic)
-        const cartButton = document.querySelector('button .fa-shopping-cart').closest('button');
-        if (cartButton) {
-            cartButton.addEventListener('click', function() {
-                alert('Menuju ke keranjang belanja...');
             });
         }
 

@@ -50,48 +50,86 @@
 </div>
 
 @push('scripts')
-<script>
-    /**
-     * Add to cart (from search result)
-     */
-    function addToCartFromSearch(event, el) {
-        event.preventDefault();
-        event.stopPropagation();
+    <script>
+        function addToCartFromSearch(event, el) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
 
-        const productId = el.dataset.id;
-        if (!productId) return;
+            const productId = el.dataset.id;
+            if (!productId) return false;
 
-        fetch("{{ route('frontend.cart.add') }}", {
-            method: "POST",
-            headers: {
-                "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                product_id: productId,
-                qty: 1
+            const button = event?.currentTarget;
+            if (!button) return false;
+
+            const icon = button.querySelector('i');
+            const textSpan = button.querySelector('span');
+
+            const originalIcon = icon.className;
+            const originalText = textSpan.textContent;
+            const originalBg = button.style.backgroundColor;
+
+            button.disabled = true;
+            icon.className = 'fas fa-spinner fa-spin';
+            textSpan.textContent = 'Adding...';
+
+            fetch("{{ route('frontend.cart.add') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    qty: 1
+                })
             })
-        })
-        .then(response => {
-            if (response.status === 401) {
-                window.location.href = "{{ route('login') }}";
-                return;
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (!data) return;
+            .then(res => {
+                if (res.status === 401) {
+                    window.location.href = "{{ route('login') }}";
+                    return null;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (!data) return;
 
-            if (data.success) {
-                showToast(data.message || 'Produk berhasil ditambahkan ke keranjang', 'success');
-                updateCartBadge(data.cart_count ?? null);
-            } else {
-                showToast(data.message || 'Gagal menambahkan ke keranjang', 'error');
-            }
-        })
-        .catch(() => {
-            showToast('Terjadi kesalahan sistem', 'error');
-        });
-    }
-</script>
+                if (data.success) {
+                    icon.className = 'fas fa-check';
+                    textSpan.textContent = 'Ditambahkan!';
+                    button.style.backgroundColor = '#10B981';
+
+                    if (typeof updateCartBadge === 'function' && data.cart_count !== undefined) {
+                        updateCartBadge(data.cart_count);
+                    }
+
+                    if (typeof showToast === 'function') {
+                        showToast(data.message, 'success');
+                    }
+                } else {
+                    throw new Error(data.message || 'Gagal menambahkan ke keranjang');
+                }
+            })
+            .catch(err => {
+                icon.className = originalIcon;
+                textSpan.textContent = originalText;
+
+                if (typeof showToast === 'function') {
+                    showToast(err.message || 'Terjadi kesalahan sistem', 'error');
+                }
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    button.disabled = false;
+                    icon.className = originalIcon;
+                    textSpan.textContent = originalText;
+                    button.style.backgroundColor = originalBg;
+                }, 1500);
+            });
+
+            return false;
+        }
+    </script>
 @endpush
