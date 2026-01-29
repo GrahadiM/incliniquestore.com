@@ -43,25 +43,27 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware(['active.user', 'role:customer|member'])->group(function () {
         Route::name('frontend.')->group(function () {
-            Route::controller(App\Http\Controllers\Frontend\CartController::class)->group(function () {
-                Route::get('/cart', 'index')->name('cart.index');
-                Route::post('/cart/add', 'add')->name('cart.add');
+            Route::controller(App\Http\Controllers\Frontend\CartController::class)->prefix('cart')->name('cart.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/add', 'add')->name('add');
+                Route::patch('/{cart}', 'update')->name('update');
+                Route::delete('/{cart}', 'destroy')->name('destroy');
             });
 
-            Route::controller(App\Http\Controllers\Frontend\CheckoutController::class)->group(function () {
-                Route::get('/checkout', 'index')->name('checkout.index');
-                Route::post('/checkout', 'store')->name('checkout.store');
-                Route::post('/checkout/success', 'success')->name('checkout.success');
+            Route::controller(App\Http\Controllers\Frontend\CheckoutController::class)->prefix('checkout')->name('checkout.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/', 'store')->name('store');
+                Route::post('/success', 'success')->name('success');
             });
 
-            Route::controller(App\Http\Controllers\Frontend\OrderTrackingController::class)->group(function () {
-                Route::get('/order-tracking', 'index')->name('order.tracking.index');
-                Route::post('/order-tracking', 'submit')->name('order.tracking.submit');
+            Route::controller(App\Http\Controllers\Frontend\OrderTrackingController::class)->prefix('order-tracking')->name('order.tracking.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/', 'submit')->name('submit');
             });
 
-            Route::controller(App\Http\Controllers\Frontend\CareerController::class)->group(function () {
-                Route::get('/career', 'index')->name('career.index');
-                Route::post('/career/apply', 'apply')->name('career.apply');
+            Route::controller(App\Http\Controllers\Frontend\CareerController::class)->prefix('career')->name('career.')->group(function () {
+                Route::get('/', 'index')->name('index');
+                Route::post('/apply', 'apply')->name('apply');
             });
         });
 

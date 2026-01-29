@@ -11,22 +11,26 @@ class CartController extends Controller
 {
     public function index()
     {
-        $data = Cart::with('product')
-            ->where('user_id', auth()->id())
-            ->get();
+        $data = Cart::with('product')->where('user_id', auth()->id())->get();
 
         $subtotal = $data->sum(fn ($item) =>
             $item->product->price * $item->qty
         );
 
+        $tax = $subtotal * 0.1; // Example: 10% tax
+        $shipping = 12000; // Example: flat shipping rate
+
         return view('frontend.cart.index', [
             'data' => $data,
             'subtotal' => $subtotal,
+            'tax' => $tax,
+            'shipping' => $shipping,
+            'total' => $subtotal + $tax + $shipping,
         ]);
     }
 
     public function add(Request $request)
-{
+    {
         $request->validate([
             'product_id' => ['required', 'exists:products,id'],
             'qty' => ['required', 'integer', 'min:1'],
@@ -48,6 +52,55 @@ class CartController extends Controller
             'success' => true,
             'message' => 'Produk berhasil ditambahkan ke keranjang',
             'cart_count' => $cartCount
+        ]);
+    }
+
+    public function update(Request $request, Cart $cart)
+    {
+        abort_if($cart->user_id !== auth()->id(), 403);
+
+        $request->validate([
+            'qty' => ['required', 'integer', 'min:1']
+        ]);
+
+        $cart->update(['qty' => $request->qty]);
+
+        $subtotal = Cart::where('user_id', auth()->id())
+            ->with('product')
+            ->get()
+            ->sum(fn ($item) => $item->product->price * $item->qty);
+
+        $tax = $subtotal * 0.1; // Example: 10% tax
+        $shipping = 12000; // Example: flat shipping rate
+
+        return response()->json([
+            'success' => true,
+            'qty' => $cart->qty,
+            'item_total' => $cart->product->price * $cart->qty,
+            'subtotal' => $subtotal,
+            'tax' => $tax,
+            'shipping' => $shipping,
+            'total' => $subtotal + $tax + $shipping,
+            'cart_count' => Cart::where('user_id', auth()->id())->sum('qty'),
+        ]);
+    }
+
+    public function destroy(Cart $cart)
+    {
+        abort_if($cart->user_id !== auth()->id(), 403);
+
+        $cart->delete();
+
+        $subtotal = Cart::where('user_id', auth()->id())
+            ->with('product')
+            ->get()
+            ->sum(fn ($item) => $item->product->price * $item->qty);
+
+        return response()->json([
+            'success' => true,
+            'subtotal' => $subtotal,
+            'total' => $subtotal,
+            'cart_count' => Cart::where('user_id', auth()->id())->sum('qty'),
         ]);
     }
 }
