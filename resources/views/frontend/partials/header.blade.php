@@ -29,14 +29,7 @@
                     }
                 @endphp
 
-                <a
-                    href="{{ route($menu['route']) }}"
-                    class="text-sm xl:text-base font-medium transition
-                        {{ $isActive
-                            ? 'text-primary-orange border-b-2 border-primary-orange pb-1'
-                            : 'text-gray-700 hover:text-primary-orange'
-                        }}"
-                >
+                <a href="{{ route($menu['route']) }}" class="text-sm xl:text-base font-medium transition {{ $isActive ? 'text-primary-orange border-b-2 border-primary-orange pb-1' : 'text-gray-700 hover:text-primary-orange' }}">
                     {{ strtoupper($menu['label']) }}
                 </a>
             @endforeach
@@ -63,9 +56,8 @@
             <button id="search-toggle-mobile" class="text-gray-700 hover:text-primary-orange">
                 <i class="fas fa-search"></i>
             </button>
-            <a href="{{ route('frontend.cart.index') }}" class="hidden text-gray-700 hover:text-primary-orange relative transition-colors" aria-label="Shopping Cart">
+            <a href="{{ route('frontend.cart.index') }}" class="text-gray-700 hover:text-primary-orange relative transition-colors" aria-label="Shopping Cart">
                 <i class="fas fa-shopping-cart"></i>
-                <span class="absolute -top-2 -right-2 bg-primary-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
             </a>
             <!-- Hamburger Menu Button -->
             <button id="menu-toggle" class="text-gray-700">
@@ -83,27 +75,12 @@
             </button>
 
             {{-- Cart --}}
-            <a href="{{ route('frontend.cart.index') }}"
-                class="relative text-gray-700 hover:text-primary-orange transition"
-                aria-label="Shopping Cart">
+            <a href="{{ route('frontend.cart.index') }}" class="relative text-gray-700 hover:text-primary-orange transition" aria-label="Shopping Cart">
                 <i class="fas fa-shopping-cart"></i>
-
-                {{-- Badge --}}
-                <span
-                    class="absolute -top-2 -right-2 bg-primary-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    3
-                </span>
             </a>
 
             {{-- Account / Login --}}
-            <a
-                href="{{ route($accountRoute) }}"
-                class="ml-6 text-sm xl:text-base font-semibold transition
-                    {{ $accountActive
-                        ? 'text-primary-orange border-b-2 border-primary-orange pb-1'
-                        : 'text-gray-700 hover:text-primary-orange'
-                    }}"
-            >
+            <a href="{{ route($accountRoute) }}" class="ml-6 text-sm xl:text-base font-semibold transition {{ $accountActive ? 'text-primary-orange border-b-2 border-primary-orange pb-1' : 'text-gray-700 hover:text-primary-orange' }}">
                 {{ $accountLabel }}
             </a>
 
@@ -123,8 +100,7 @@
         </div>
 
         <div class="relative mb-6">
-            <input type="text" id="search-input" placeholder="Ketik nama produk yang dicari..."
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-orange focus:ring-2 focus:ring-primary-orange focus:ring-opacity-20">
+            <input type="text" id="search-input" placeholder="Ketik nama produk yang dicari..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-orange focus:ring-2 focus:ring-primary-orange focus:ring-opacity-20">
             <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-700 hover:text-primary-orange">
                 <i class="fas fa-search"></i>
             </button>
