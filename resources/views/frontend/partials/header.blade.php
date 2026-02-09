@@ -8,9 +8,55 @@
         <!-- Desktop Navigation (hanya untuk layar besar) -->
         <nav class="hidden lg:block space-x-8">
             @foreach (config('menu.top_nav') as $menu)
-                <a href="{{ route($menu['route']) }}" class="text-sm xl:text-base font-medium {{ $menu['route'] == request()->route()->getName() ? 'text-primary-orange border-b-2 border-primary-orange py-2' : 'text-gray-700 hover:text-primary-orange' }}">{{ strtoupper($menu['label']) }}</a>
+                {{-- <a href="{{ route($menu['route']) }}" class="text-sm xl:text-base font-medium @if(request()->routeIs($menu['route'])) 'text-primary-orange border-b-2 border-primary-orange py-2' @else 'text-gray-700 hover:text-primary-orange' @endif">{{ strtoupper($menu['label']) }}</a> --}}
+                {{-- <a href="{{ route($menu['route']) }}" class="text-sm xl:text-base font-medium {{ $menu['route'] == request()->route()->getName() ? 'text-primary-orange border-b-2 border-primary-orange py-2' : 'text-gray-700 hover:text-primary-orange' }}">{{ strtoupper($menu['label']) }}</a> --}}
+                @php
+                    $isActive = false;
+
+                    // Exact match
+                    if (request()->routeIs($menu['route'])) {
+                        $isActive = true;
+                    }
+
+                    // SHOP wildcard
+                    if ($menu['route'] === 'frontend.shop.index' && request()->routeIs('frontend.shop.*')) {
+                        $isActive = true;
+                    }
+
+                    // BLOG wildcard
+                    if ($menu['route'] === 'frontend.blog.index' && request()->routeIs('frontend.blog.*')) {
+                        $isActive = true;
+                    }
+                @endphp
+
+                <a
+                    href="{{ route($menu['route']) }}"
+                    class="text-sm xl:text-base font-medium transition
+                        {{ $isActive
+                            ? 'text-primary-orange border-b-2 border-primary-orange pb-1'
+                            : 'text-gray-700 hover:text-primary-orange'
+                        }}"
+                >
+                    {{ strtoupper($menu['label']) }}
+                </a>
             @endforeach
         </nav>
+
+        @php
+            $isLoggedIn = auth()->check();
+
+            $accountRoute = $isLoggedIn
+                ? 'customer.dashboard'
+                : 'login';
+
+            $accountLabel = $isLoggedIn
+                ? 'DASHBOARD'
+                : 'LOGIN';
+
+            $accountActive =
+                request()->routeIs('customer.*') ||
+                request()->routeIs('login');
+        @endphp
 
         <!-- Mobile & Tablet Header Icons (untuk layar di bawah lg) -->
         <div class="flex items-center space-x-4 lg:hidden">
@@ -28,17 +74,39 @@
         </div>
 
         <!-- Desktop Header Icons (hanya untuk layar besar) -->
-        <div class="hidden lg:block items-center space-x-4">
-            <button id="search-toggle-desktop" class="text-gray-700 hover:text-primary-orange">
+        <div class="hidden lg:flex items-center space-x-5">
+
+            {{-- Search --}}
+            <button id="search-toggle-desktop"
+                class="text-gray-700 hover:text-primary-orange transition">
                 <i class="fas fa-search"></i>
             </button>
-            <a href="{{ route('frontend.cart.index') }}" class="text-gray-700 hover:text-primary-orange relative transition-colors" aria-label="Shopping Cart">
+
+            {{-- Cart --}}
+            <a href="{{ route('frontend.cart.index') }}"
+                class="relative text-gray-700 hover:text-primary-orange transition"
+                aria-label="Shopping Cart">
                 <i class="fas fa-shopping-cart"></i>
-                <span class="absolute -top-2 -right-2 bg-primary-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+
+                {{-- Badge --}}
+                <span
+                    class="absolute -top-2 -right-2 bg-primary-red text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    3
+                </span>
             </a>
-            <a href="{{ route('login') }}" class="text-gray-700 hover:text-primary-orange transition-colors" aria-label="User Account">
-                <i class="fas fa-user"></i>
+
+            {{-- Account / Login --}}
+            <a
+                href="{{ route($accountRoute) }}"
+                class="ml-6 text-sm xl:text-base font-semibold transition
+                    {{ $accountActive
+                        ? 'text-primary-orange border-b-2 border-primary-orange pb-1'
+                        : 'text-gray-700 hover:text-primary-orange'
+                    }}"
+            >
+                {{ $accountLabel }}
             </a>
+
         </div>
     </div>
 </header>
@@ -94,52 +162,84 @@
 <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-50"></div>
 <div id="sidebar" class="sidebar fixed top-0 left-0 h-full w-64 bg-white z-50 p-6">
     <div class="flex justify-between items-center mb-8">
-        <h2 class="text-xl font-bold text-primary-orange">Inclinique<span class="text-primary-red"> Store</span>
+        <h2 class="text-xl font-bold text-primary-orange hover:cursor-pointer" onclick="window.location.href='{{ route('frontend.index') }}';">
+            Inclinique<span class="text-primary-red"> Store</span>
         </h2>
         <button id="close-sidebar" class="text-gray-700">
             <i class="fas fa-times text-xl"></i>
         </button>
     </div>
 
-    <nav class="space-y-6">
-        <a href="index.html"
-            class="block text-gray-700 hover:text-primary-orange font-medium py-2 border-b border-gray-100">
-            <i class="fas fa-home mr-3"></i>HOME
-        </a>
-        <a href="product.html"
-            class="block text-gray-700 hover:text-primary-orange font-medium py-2 border-b border-gray-100">
-            <i class="fas fa-shopping-bag mr-3"></i>SHOP ALL
-        </a>
-        <a href="news.html"
-            class="block text-gray-700 hover:text-primary-orange font-medium py-2 border-b border-gray-100">
-            <i class="fas fa-blog mr-3"></i>BEAUTY INSIDER
-        </a>
-        <a href="about.html"
-            class="block text-gray-700 hover:text-primary-orange font-medium py-2 border-b border-gray-100">
-            <i class="fas fa-info-circle mr-3"></i>ABOUT US
-        </a>
-        <a href="career.html"
-            class="block text-gray-700 hover:text-primary-orange font-medium py-2 border-b border-gray-100">
-            <i class="fas fa-envelope mr-3"></i>CAREER
-        </a>
-        <a href="#"
-            class="block text-gray-700 hover:text-primary-orange font-medium py-2 border-b border-gray-100">
-            <i class="fas fa-search mr-3"></i>Pencarian
-        </a>
-        <a href="#"
-            class="block text-gray-700 hover:text-primary-orange font-medium py-2 border-b border-gray-100">
-            <i class="fas fa-user mr-3"></i>Akun Saya
-        </a>
-    </nav>
+    {{-- Menu --}}
+    <nav class="space-y-1">
 
-    <div class="mt-8 pt-6 border-t border-gray-200">
-        <h3 class="font-semibold text-gray-700 mb-4">Kategori Produk</h3>
-        <div class="space-y-3">
-            <a href="#" class="block text-gray-600 hover:text-primary-orange">Pembersih Wajah</a>
-            <a href="#" class="block text-gray-600 hover:text-primary-orange">Pelembap</a>
-            <a href="#" class="block text-gray-600 hover:text-primary-orange">Serum</a>
-            <a href="#" class="block text-gray-600 hover:text-primary-orange">Tabir Surya</a>
-            <a href="#" class="block text-gray-600 hover:text-primary-orange">Perawatan Khusus</a>
-        </div>
-    </div>
+        @foreach (config('menu.side_nav') as $menu)
+            @php
+                $isActive = false;
+
+                if (request()->routeIs($menu['route'])) {
+                    $isActive = true;
+                }
+
+                if ($menu['key'] === 'shop' && request()->routeIs('frontend.shop.*')) {
+                    $isActive = true;
+                }
+
+                if ($menu['key'] === 'blog' && request()->routeIs('frontend.blog.*')) {
+                    $isActive = true;
+                }
+            @endphp
+
+            {{-- Divider --}}
+            <hr class="border-b border-gray-300">
+
+            <a
+                href="{{ route($menu['route']) }}"
+                class="flex items-center gap-3 py-3 px-3 rounded-lg font-medium transition
+                    {{ $isActive
+                        ? 'bg-primary-orange/10 text-primary-orange'
+                        : 'text-gray-700 hover:text-primary-orange hover:bg-orange-50'
+                    }}"
+            >
+                <i class="fas {{ $menu['icon'] }} w-5"></i>
+                <span>{{ $menu['label'] }}</span>
+            </a>
+        @endforeach
+
+        {{-- ACCOUNT / LOGIN --}}
+        @php
+            $isLoggedIn = auth()->check();
+
+            $accountRoute = $isLoggedIn
+                ? 'customer.dashboard'
+                : 'login';
+
+            $accountLabel = $isLoggedIn
+                ? 'DASHBOARD'
+                : 'LOGIN';
+
+            $accountActive =
+                request()->routeIs('customer.*') ||
+                request()->routeIs('login');
+        @endphp
+
+        {{-- Divider --}}
+        <hr class="border-b border-gray-300">
+
+        <a
+            href="{{ route($accountRoute) }}"
+            class="flex items-center gap-3 py-3 px-3 rounded-lg font-semibold transition
+                {{ $accountActive
+                    ? 'bg-primary-orange/10 text-primary-orange'
+                    : 'text-gray-700 hover:text-primary-orange hover:bg-orange-50'
+                }}"
+        >
+            <i class="fas fa-home w-5"></i>
+            <span>{{ $accountLabel }}</span>
+        </a>
+
+        {{-- Divider --}}
+        <hr class="border-b border-gray-300">
+
+    </nav>
 </div>

@@ -19,10 +19,13 @@ Route::name('frontend.')->group(function () {
         Route::get('/locations', 'index')->name('locations.index');
     });
 
-    Route::controller(App\Http\Controllers\Frontend\ProductController::class)->group(function () {
-        Route::get('/products', 'index')->name('product.index');
-        Route::get('/products/{slug}', 'detail')->name('product.detail');
-        Route::get('/categories/{slug}', 'category')->name('product.category');
+    Route::controller(App\Http\Controllers\Frontend\ProductController::class)->prefix('shop')->name('shop.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{slug}', 'detail')->name('detail');
+
+        Route::controller(App\Http\Controllers\Frontend\CategoryController::class)->prefix('categories')->name('category.')->group(function () {
+            Route::get('/{slug}', 'index')->name('index');
+        });
     });
 
     Route::controller(App\Http\Controllers\Frontend\CompareController::class)->group(function () {

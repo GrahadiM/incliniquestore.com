@@ -180,8 +180,8 @@
     }
 
     .border-outline-primary-orange {
-        border-color: transparent;
         -webkit-text-stroke: 1px #FA812F;
+        color: transparent;
     }
 
     .hover\:bg-primary-orange:hover {

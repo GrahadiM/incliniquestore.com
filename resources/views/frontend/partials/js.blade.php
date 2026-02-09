@@ -11,8 +11,7 @@
             return;
         }
 
-        const baseUrl = "{{ url('/products') }}";
-        window.location.href = `${baseUrl}/${slug}`;
+        window.location.href =  '{{ route('frontend.shop.detail', ['slug' => ':slug']) }}'.replace(':slug', slug);
     }
 
     // Data produk untuk pencarian
@@ -249,27 +248,6 @@
                 this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.05)';
             });
         });
-
-        // Simulasi login/logout untuk demo
-        const loginButton = document.querySelector('.bottom-nav a:nth-child(4)');
-        let isLoggedIn = false;
-
-        if (loginButton) {
-            loginButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                isLoggedIn = !isLoggedIn;
-
-                if (isLoggedIn) {
-                    this.innerHTML =
-                        '<i class="fas fa-user text-2xl mb-1"></i><span class="text-xs font-medium">Profil</span>';
-                    this.classList.add('logged-in');
-                } else {
-                    this.innerHTML =
-                        '<i class="fas fa-user text-2xl mb-1"></i><span class="text-xs font-medium">Masuk</span>';
-                    this.classList.remove('logged-in');
-                }
-            });
-        }
 
         // Smooth scroll untuk anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {

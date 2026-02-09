@@ -15,16 +15,17 @@
 
 <!-- Hero Section -->
 <section class="hero-section py-16 lg:py-24 rounded-br-[24px]">
-    <div class="w-full lg:max-w-7xl mx-auto px-8 flex flex-col lg:flex-row items-center">
-        <div class="lg:w-1/2 mb-10 lg:mb-0">
+    <div class="w-full lg:max-w-7xl mx-auto px-8 flex flex-col lg:flex-row items-center gap-16">
+        <div class="w-full lg:w-3/5 xl:w-1/2 mb-10 lg:mb-0">
             <h1 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
-                Kulit Sehat, <span class="text-primary-orange">Percaya Diri</span> Meningkat
+                Awali <span class="text-primary-orange">Skin Renewal</span> dengan Rutinitas Terbaik
             </h1>
             <p class="text-lg text-gray-800 mb-8">
-                Temukan rangkaian skincare terbaik yang diformulasikan khusus untuk jenis kulit Anda. Hasil terlihat dalam 2 minggu!
+                Rangkaian InClinique Renewal Series diformulasikan khusus untuk mendukung pembaruan kulit alami.
+                Hasil kulit lebih sehat dan bercahaya dalam 14 hari pertama penggunaan.
             </p>
             <div class="flex flex-col sm:flex-row space-y-1 md:space-y-0 space-x-0 md:space-x-1 justify-center lg:justify-start">
-                <button onclick="window.location.href='{{ route('frontend.product.index') }}';" class="border border-primary-orange bg-primary-orange text-white px-6 py-3 rounded-bl-[48px] rounded-tr-[48px] md:rounded-bl-[12px] md:rounded-tr-[12px] font-semibold hover:bg-transparent hover:text-primary-orange transition duration-300">
+                <button onclick="window.location.href='{{ route('frontend.shop.index') }}';" class="border border-primary-orange bg-primary-orange text-white px-6 py-3 rounded-bl-[48px] rounded-tr-[48px] md:rounded-bl-[12px] md:rounded-tr-[12px] font-semibold hover:bg-transparent hover:text-primary-orange transition duration-300">
                     Belanja Sekarang
                 </button>
                 <button onclick="window.location.href='{{ route('frontend.locations.index') }}';" class="border border-primary-orange bg-primary-orange text-white px-6 py-3 rounded-br-[48px] rounded-tl-[48px] md:rounded-br-[12px] md:rounded-tl-[12px] font-semibold hover:bg-transparent hover:text-primary-orange transition duration-300">
@@ -32,7 +33,7 @@
                 </button>
             </div>
         </div>
-        <div class="lg:w-1/2 flex justify-center">
+        <div class="w-full lg:w-2/5 xl:w-1/2 flex justify-center">
             <div class="relative">
                 <img src="https://images.unsplash.com/photo-1556228578-8c89e6adf883?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Skincare Products" class="rounded-lg shadow-xl w-full max-w-md">
                 <div class="absolute -top-4 -right-4 bg-white p-4 rounded-lg shadow-lg">
@@ -265,7 +266,7 @@
     <div class="w-full lg:max-w-7xl mx-auto px-4">
         <div class="flex justify-between items-center mb-12">
             <h2 class="text-3xl font-bold text-gray-800">Produk Terlaris</h2>
-            <a href="{{ route('frontend.index') }}" class="hidden md:inline-block bg-primary-orange text-white px-6 py-3 rounded-br-[16px] rounded-tl-[16px] font-medium hover:shadow-lg hover:shadow-orange-500/50 transition duration-300">
+            <a href="{{ route('frontend.shop.index') }}" class="hidden md:inline-block bg-primary-orange text-white px-6 py-3 rounded-br-[16px] rounded-tl-[16px] font-medium hover:shadow-lg hover:shadow-orange-500/50 transition duration-300">
                 Lihat Semua
                 <i class="fas fa-arrow-right ml-2"></i>
             </a>
@@ -279,7 +280,7 @@
 
         <!-- Mobile & Tablet View All Button -->
         <div class="md:hidden mt-16 text-center">
-            <a href="{{ route('frontend.index') }}" class="block bg-primary-orange text-white px-6 py-3 rounded-br-[16px] rounded-tl-[16px] font-medium hover:shadow-lg hover:shadow-orange-500/50 transition duration-300">
+            <a href="{{ route('frontend.shop.index') }}" class="block bg-primary-orange text-white px-6 py-3 rounded-br-[16px] rounded-tl-[16px] font-medium hover:shadow-lg hover:shadow-orange-500/50 transition duration-300">
                 Lihat Semua
             </a>
         </div>

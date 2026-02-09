@@ -9,7 +9,7 @@ return [
         ],
         [
             'label' => 'SHOP',
-            'route' => 'frontend.product.index',
+            'route' => 'frontend.shop.index',
         ],
         [
             'label' => 'BLOG',
@@ -35,7 +35,7 @@ return [
         [
             'key'   => 'shop',
             'label' => 'Shop',
-            'route' => 'frontend.product.index',
+            'route' => 'frontend.shop.index',
             'icon'  => 'fa-shopping-bag',
         ],
         [
@@ -58,4 +58,36 @@ return [
         ],
     ],
 
+    'side_nav' => [
+        // [
+        //     'key'   => 'home',
+        //     'label' => 'HOME',
+        //     'route' => 'frontend.index',
+        //     'icon'  => 'fa-home',
+        // ],
+        [
+            'key'   => 'shop',
+            'label' => 'SHOP ALL',
+            'route' => 'frontend.shop.index',
+            'icon'  => 'fa-shopping-bag',
+        ],
+        [
+            'key'   => 'blog',
+            'label' => 'BEAUTY INSIDER',
+            'route' => 'frontend.blog.index',
+            'icon'  => 'fa-newspaper',
+        ],
+        // [
+        //     'key'   => 'about',
+        //     'label' => 'ABOUT US',
+        //     'route' => 'frontend.about',
+        //     'icon'  => 'fa-info-circle',
+        // ],
+        // [
+        //     'key'   => 'career',
+        //     'label' => 'CAREER',
+        //     'route' => 'frontend.career.index',
+        //     'icon'  => 'fa-envelope',
+        // ],
+    ],
 ];

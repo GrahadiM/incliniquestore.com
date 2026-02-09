@@ -141,7 +141,7 @@
 
             {{-- SUMMARY (STICKY) --}}
             <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-sm p-5 md:p-6 h-fit sticky top-24">
+                <div class="bg-white rounded-xl shadow-sm p-5 md:p-6 h-fit sticky-summary">
                     <h3 class="text-lg font-semibold text-gray-800 mb-4 md:mb-6">
                         Ringkasan Belanja
                     </h3>
@@ -182,7 +182,7 @@
                             </a>
 
                             <a
-                                href="{{ route('frontend.product.index') }}"
+                                href="{{ route('frontend.shop.index') }}"
                                 class="block w-full text-center border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition"
                             >
                                 Lanjutkan Belanja
@@ -203,7 +203,7 @@
                     Keranjang Anda masih kosong.
                 </p>
                 <a
-                    href="{{ route('frontend.product.index') }}"
+                    href="{{ route('frontend.shop.index') }}"
                     class="inline-block bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-dark transition"
                 >
                     Mulai Belanja
@@ -215,23 +215,6 @@
 </section>
 @endsection
 
-@push('styles')
-    <style>
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        @media (max-width: 768px) {
-            .sticky {
-                position: static;
-            }
-        }
-    </style>
-@endpush
-
 @push('scripts')
     <script>
         /**
@@ -242,28 +225,25 @@
         }
 
         /**
-         * UPDATE QTY
+         * UPDATE QTY dengan loading state
          */
         document.querySelectorAll('.qty-btn').forEach(btn => {
             btn.addEventListener('click', function () {
                 const cartId = this.dataset.id;
                 const action = this.dataset.action;
-
                 const qtyEl = document.getElementById(`qty-${cartId}`);
-                const totalEl = document.getElementById(`item-total-${cartId}`);
-
                 let qty = parseInt(qtyEl.innerText);
-                const oldQty = qty;
 
                 if (action === 'increase') qty++;
                 if (action === 'decrease' && qty > 1) qty--;
 
-                if (qty === oldQty) return;
-
                 // Disable buttons sementara
-                document
-                    .querySelectorAll(`.qty-btn[data-id="${cartId}"]`)
-                    .forEach(b => b.disabled = true);
+                const buttons = document.querySelectorAll(`.qty-btn[data-id="${cartId}"]`);
+                buttons.forEach(b => b.disabled = true);
+
+                // Tampilkan loading
+                const originalHTML = qtyEl.innerHTML;
+                qtyEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
                 fetch(`{{ route('frontend.cart.update', ':id') }}`.replace(':id', cartId), {
                     method: 'PATCH',
@@ -274,43 +254,38 @@
                     },
                     body: JSON.stringify({ qty })
                 })
-                .then(res => {
-                    if (!res.ok) throw new Error('Gagal update qty');
-                    return res.json();
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.message || 'Gagal update qty');
+                    }
+                    return data;
                 })
                 .then(data => {
-                    if (!data.success) throw new Error(data.message);
+                    if (!data.success) {
+                        throw new Error(data.message || 'Terjadi kesalahan');
+                    }
 
-                    // Update qty & item total
-                    qtyEl.innerText = data.qty;
-                    totalEl.innerText = formatRupiah(data.item_total);
+                    // Update tampilan
+                    qtyEl.textContent = data.qty;
+                    document.getElementById(`item-total-${cartId}`).textContent = formatRupiah(data.item_total);
 
                     // Update ringkasan
-                    const subtotalEl = document.getElementById('cart-subtotal');
-                    if (subtotalEl) subtotalEl.innerText = formatRupiah(data.subtotal);
+                    updateCartSummary(data);
 
-                    const taxEl = document.getElementById('tax');
-                    if (taxEl) taxEl.innerText = formatRupiah(data.tax || 0);
-
-                    const shippingEl = document.getElementById('shipping');
-                    if (shippingEl) shippingEl.innerText = formatRupiah(data.shipping || 0);
-
-                    const totalElSummary = document.getElementById('cart-total');
-                    if (totalElSummary) totalElSummary.innerText = formatRupiah(data.total);
-
-                    // Update cart badge (jika ada)
-                    if (typeof updateCartBadge === 'function') {
+                    // Update cart badge
+                    if (window.updateCartBadge) {
                         updateCartBadge(data.cart_count);
                     }
                 })
-                .catch(err => {
-                    qtyEl.innerText = oldQty;
-                    alert(err.message || 'Terjadi kesalahan');
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(error.message);
+                    // Kembalikan ke nilai sebelumnya
+                    fetchCartItem(cartId);
                 })
                 .finally(() => {
-                    document
-                        .querySelectorAll(`.qty-btn[data-id="${cartId}"]`)
-                        .forEach(b => b.disabled = false);
+                    buttons.forEach(b => b.disabled = false);
                 });
             });
         });
@@ -321,8 +296,14 @@
         document.querySelectorAll('.remove-cart-item').forEach(btn => {
             btn.addEventListener('click', function () {
                 const cartId = this.dataset.id;
+                const cartItem = document.getElementById(`cart-item-${cartId}`);
 
                 if (!confirm('Hapus item dari keranjang?')) return;
+
+                // Tampilkan loading
+                cartItem.classList.add('opacity-50');
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
                 fetch(`{{ route('frontend.cart.destroy', ':id') }}`.replace(':id', cartId), {
                     method: 'DELETE',
@@ -331,38 +312,119 @@
                         'Accept': 'application/json',
                     }
                 })
-                .then(res => {
-                    if (!res.ok) throw new Error('Gagal menghapus item');
-                    return res.json();
+                .then(async res => {
+                    const data = await res.json();
+                    if (!res.ok) {
+                        throw new Error(data.message || 'Gagal menghapus item');
+                    }
+                    return data;
                 })
                 .then(data => {
-                    if (!data.success) throw new Error(data.message);
+                    if (!data.success) {
+                        throw new Error(data.message || 'Terjadi kesalahan');
+                    }
 
-                    document.getElementById(`cart-item-${cartId}`)?.remove();
+                    // Hapus elemen
+                    cartItem.remove();
 
-                    const subtotalEl = document.getElementById('cart-subtotal');
-                    if (subtotalEl) subtotalEl.innerText = formatRupiah(data.subtotal);
+                    // Update ringkasan
+                    updateCartSummary(data);
 
-                    const taxEl = document.getElementById('tax');
-                    if (taxEl) taxEl.innerText = formatRupiah(data.tax || 0);
-
-                    const shippingEl = document.getElementById('shipping');
-                    if (shippingEl) shippingEl.innerText = formatRupiah(data.shipping || 0);
-
-                    const totalElSummary = document.getElementById('cart-total');
-                    if (totalElSummary) totalElSummary.innerText = formatRupiah(data.total);
-
-                    if (typeof updateCartBadge === 'function') {
+                    // Update cart badge
+                    if (window.updateCartBadge) {
                         updateCartBadge(data.cart_count);
                     }
 
-                    // Jika cart kosong → reload ke empty state
+                    // Jika cart kosong, reload halaman
                     if (!document.querySelector('[id^="cart-item-"]')) {
-                        location.reload();
+                        setTimeout(() => location.reload(), 1000);
                     }
                 })
-                .catch(err => alert(err.message || 'Terjadi kesalahan'));
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(error.message);
+                    cartItem.classList.remove('opacity-50');
+                    this.disabled = false;
+                    this.innerHTML = '<i class="fas fa-trash"></i>';
+                });
             });
         });
+
+        /**
+         * Fungsi helper untuk update ringkasan
+         */
+        function updateCartSummary(data) {
+            const elements = {
+                subtotal: document.getElementById('cart-subtotal'),
+                tax: document.getElementById('tax'),
+                shipping: document.getElementById('shipping'),
+                total: document.getElementById('cart-total')
+            };
+
+            Object.keys(elements).forEach(key => {
+                if (elements[key] && data[key] !== undefined) {
+                    elements[key].textContent = formatRupiah(data[key]);
+                }
+            });
+        }
+
+        /**
+         * Fungsi untuk fetch data item terbaru
+         */
+        function fetchCartItem(cartId) {
+            fetch(`{{ route('frontend.cart.index') }}`)
+                .then(res => res.json())
+                .then(data => {
+                    // Update hanya item yang sesuai
+                    const item = data.data.find(item => item.id == cartId);
+                    if (item) {
+                        document.getElementById(`qty-${cartId}`).textContent = item.qty;
+                        document.getElementById(`item-total-${cartId}`).textContent =
+                            formatRupiah(item.product.price * item.qty);
+                    }
+                })
+                .catch(console.error);
+        }
+
+        /**
+         * Handle error response dengan lebih baik
+         */
+        function handleResponseError(response) {
+            return response.json().then(data => {
+                const error = new Error(data.message || 'Terjadi kesalahan');
+                error.data = data;
+                throw error;
+            });
+        }
     </script>
+@endpush
+
+@push('styles')
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Animasi untuk update */
+        @keyframes highlightUpdate {
+            0% { background-color: rgba(34, 197, 94, 0.2); }
+            100% { background-color: transparent; }
+        }
+
+        .updated {
+            animation: highlightUpdate 1s ease-out;
+        }
+
+        /* Responsive untuk sticky summary */
+        @media (min-width: 1024px) {
+            .sticky-summary {
+                position: sticky;
+                top: 6rem;
+                align-self: flex-start;
+            }
+        }
+    </style>
 @endpush

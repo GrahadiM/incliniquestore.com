@@ -1,6 +1,6 @@
 
 <div class="hover:cursor-pointer bg-white rounded-br-[24px] rounded-tl-[24px] hover:shadow-lg hover:shadow-orange-500/50 transition duration-300">
-    <div class="relative" onclick="window.location.href='{{ route('frontend.product.detail', ['slug' => $product?->slug]) }}';">
+    <div class="relative" onclick="window.location.href='{{ route('frontend.shop.detail', ['slug' => $product?->slug]) }}';">
         <img src="{{ config('app.asset_url') . '/storage/' . $product?->thumbnail }}" alt="{{ $product?->name }}" class="w-full rounded-br-[12px] rounded-tl-[12px] aspect-square object-cover">
 
         @if ($product?->is_featured == 1)
@@ -15,12 +15,12 @@
     </div>
 
     <div class="p-4">
-        <h3 class="font-semibold text-sm text-gray-800 mb-1" onclick="window.location.href='{{ route('frontend.product.detail', ['slug' => $product?->slug]) }}';">
+        <h3 class="font-semibold text-sm text-gray-800 mb-1" onclick="window.location.href='{{ route('frontend.shop.detail', ['slug' => $product?->slug]) }}';">
             {{ $product?->name }}
         </h3>
 
         <div class="space-y-0 mb-3">
-            <div class="flex items-center space-x-2" onclick="window.location.href='{{ route('frontend.product.detail', ['slug' => $product?->slug]) }}';">
+            <div class="flex items-center space-x-2" onclick="window.location.href='{{ route('frontend.shop.detail', ['slug' => $product?->slug]) }}';">
                 <span class="font-bold text-primary-red text-lg">
                     Rp.{{ number_format($product?->price, 0, ',', '.') }}
                 </span>
@@ -34,6 +34,7 @@
             </div>
         </div>
 
+        <!-- ADD TO CART -->
         <button
             class="btn-add-to-cart btn-block border border-primary-orange bg-primary-orange text-white text-sm font-semibold py-2 rounded-bl-[48px] rounded-tr-[48px] md:rounded-bl-[12px] md:rounded-tr-[12px] hover:bg-transparent hover:text-primary-orange transition duration-300 flex items-center justify-center space-x-2 mb-1"
             onclick="addToCart({{ $product->id }}, event)"
@@ -42,6 +43,7 @@
             <span>Add to Cart</span>
         </button>
 
+        <!-- VIEW MORE -->
         <button
             class="btn-view-more btn-block border border-primary-orange bg-primary-orange text-white text-sm font-semibold py-2 rounded-br-[48px] rounded-tl-[48px] md:rounded-br-[12px] md:rounded-tl-[12px] hover:bg-transparent hover:text-primary-orange transition duration-300 flex items-center justify-center space-x-2"
             onclick="goToProduct(this)"
