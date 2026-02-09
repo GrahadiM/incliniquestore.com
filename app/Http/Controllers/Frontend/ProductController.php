@@ -43,14 +43,4 @@ class ProductController extends Controller
             'recommendations'
         ));
     }
-
-    public function category($slug)
-    {
-        $data = Category::with(['products' => function ($query) {
-            $query->where('status', 'published')->latest();
-        }])->where('slug', $slug)->first();
-        return view('frontend.products.category', [
-            'data' => $data,
-        ]);
-    }
 }

@@ -3,7 +3,7 @@
 @section('title', 'Customer Dashboard')
 
 @section('content')
-    <section class="bg-primary-light py-10 md:py-16">
+    <section class="bg-white py-10 md:py-16">
         <div class="max-w-7xl mx-auto px-4">
 
             {{-- HEADER --}}

@@ -1,11 +1,16 @@
 @extends('layouts.frontend')
 
-@section('title', $data->meta_title ?? $data->name)
-@section('meta_description', $data->meta_description)
-@section('meta_keywords', $data->meta_keywords)
+@push('meta')
+    @php
+        $title = $data->meta_title ?? $data->name;
+        $description = $data->meta_description ?? $data->name;
+        $keywords = $data->meta_keywords ?? $data->name;
+    @endphp
+    @include('frontend.partials.meta-home')
+@endpush
 
 @section('content')
-    <section class="bg-primary-light py-10 md:py-16">
+    <section class="bg-white py-10 md:py-16">
         <div class="max-w-7xl mx-auto px-4">
 
             {{-- Breadcrumb --}}
@@ -13,6 +18,8 @@
                 <a href="{{ route('frontend.index') }}" class="hover:text-primary-orange">Home</a>
                 <span class="mx-2">/</span>
                 <a href="{{ route('frontend.shop.index') }}" class="hover:text-primary-orange">Shop</a>
+                <span class="mx-2">/</span>
+                <a href="{{ route('frontend.shop.category.index', ['slug' => $data->category->slug]) }}" class="hover:text-primary-orange">{{ $data->category->name }}</a>
                 <span class="mx-2">/</span>
                 <span class="text-gray-700 font-medium">{{ $data->name }}</span>
             </nav>

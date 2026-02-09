@@ -59,12 +59,12 @@ return [
     ],
 
     'side_nav' => [
-        // [
-        //     'key'   => 'home',
-        //     'label' => 'HOME',
-        //     'route' => 'frontend.index',
-        //     'icon'  => 'fa-home',
-        // ],
+        [
+            'key'   => 'home',
+            'label' => 'HOME',
+            'route' => 'frontend.index',
+            'icon'  => 'fa-home',
+        ],
         [
             'key'   => 'shop',
             'label' => 'SHOP ALL',

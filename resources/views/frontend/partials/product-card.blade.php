@@ -1,5 +1,5 @@
 
-<div class="hover:cursor-pointer bg-white rounded-br-[24px] rounded-tl-[24px] hover:shadow-lg hover:shadow-orange-500/50 transition duration-300">
+<div class="bg-white border border-gray-200 rounded-br-[24px] rounded-tl-[24px] hover:shadow-lg hover:shadow-orange-500/50 transition duration-300 hover:cursor-pointer">
     <div class="relative" onclick="window.location.href='{{ route('frontend.shop.detail', ['slug' => $product?->slug]) }}';">
         <img src="{{ config('app.asset_url') . '/storage/' . $product?->thumbnail }}" alt="{{ $product?->name }}" class="w-full rounded-br-[12px] rounded-tl-[12px] aspect-square object-cover">
 
@@ -71,11 +71,11 @@
 
             const originalIcon = icon.className;
             const originalText = textSpan.textContent;
-            const originalBg = button.style.backgroundColor;
 
+            // LOADING STATE
             button.disabled = true;
             icon.className = 'fas fa-spinner fa-spin';
-            textSpan.textContent = 'Adding...';
+            textSpan.textContent = 'Menambahkan...';
 
             fetch("{{ route('frontend.cart.add') }}", {
                 method: "POST",
@@ -89,47 +89,59 @@
                     qty: 1
                 })
             })
-            .then(res => {
+            .then(async res => {
                 if (res.status === 401) {
-                    window.location.href = "{{ route('login') }}";
-                    return null;
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Login Diperlukan',
+                        text: 'Silakan login terlebih dahulu untuk menambahkan produk ke keranjang.',
+                        confirmButtonText: 'Login',
+                        confirmButtonColor: '#f97316'
+                    }).then(() => {
+                        window.location.href = "{{ route('login') }}";
+                    });
+                    throw new Error('Unauthorized');
                 }
-                return res.json();
-            })
-            .then(data => {
-                if (!data) return;
 
-                if (data.success) {
-                    icon.className = 'fas fa-check';
-                    textSpan.textContent = 'Ditambahkan!';
-                    button.style.backgroundColor = '#10B981';
-
-                    if (typeof updateCartBadge === 'function' && data.cart_count !== undefined) {
-                        updateCartBadge(data.cart_count);
-                    }
-
-                    if (typeof showToast === 'function') {
-                        showToast(data.message, 'success');
-                    }
-                } else {
+                const data = await res.json();
+                if (!res.ok || !data.success) {
                     throw new Error(data.message || 'Gagal menambahkan ke keranjang');
                 }
+                return data;
+            })
+            .then(data => {
+                // SUCCESS STATE
+                icon.className = 'fas fa-check';
+                textSpan.textContent = 'Ditambahkan';
+
+                if (typeof updateCartBadge === 'function' && data.cart_count !== undefined) {
+                    updateCartBadge(data.cart_count);
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: data.message || 'Produk berhasil ditambahkan ke keranjang',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
             })
             .catch(err => {
-                icon.className = originalIcon;
-                textSpan.textContent = originalText;
+                if (err.message === 'Unauthorized') return;
 
-                if (typeof showToast === 'function') {
-                    showToast(err.message || 'Terjadi kesalahan sistem', 'error');
-                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal',
+                    text: err.message || 'Terjadi kesalahan sistem',
+                    confirmButtonColor: '#ef4444'
+                });
             })
             .finally(() => {
                 setTimeout(() => {
                     button.disabled = false;
                     icon.className = originalIcon;
                     textSpan.textContent = originalText;
-                    button.style.backgroundColor = originalBg;
-                }, 1500);
+                }, 1200);
             });
 
             return false;

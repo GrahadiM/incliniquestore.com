@@ -234,7 +234,7 @@
                     : 'text-gray-700 hover:text-primary-orange hover:bg-orange-50'
                 }}"
         >
-            <i class="fas fa-home w-5"></i>
+            <i class="fas fa-user w-5"></i>
             <span>{{ $accountLabel }}</span>
         </a>
 

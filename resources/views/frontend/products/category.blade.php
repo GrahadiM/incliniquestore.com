@@ -2,9 +2,9 @@
 
 @push('meta')
     @php
-        $title = 'SHOP ALL';
-        $description = 'SHOP ALL';
-        $keywords = 'SHOP ALL';
+        $title = $data['category']->name;
+        $description = $data['category']->name;
+        $keywords = $data['category']->name;
     @endphp
     @include('frontend.partials.meta-home')
 @endpush
@@ -17,7 +17,9 @@
             <nav class="text-sm text-gray-500 mb-6">
                 <a href="{{ route('frontend.index') }}" class="hover:text-primary-orange">Home</a>
                 <span class="mx-2">/</span>
-                <span class="text-gray-700 font-medium">Shop All</span>
+                <a href="{{ route('frontend.shop.index') }}" class="hover:text-primary-orange">Shop</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-700 font-medium">{{ $data['category']->name }}</span>
             </nav>
 
             <div class="flex flex-col lg:flex-row gap-4">

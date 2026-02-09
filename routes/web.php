@@ -49,7 +49,7 @@ Route::middleware('auth')->group(function () {
             Route::controller(App\Http\Controllers\Frontend\CartController::class)->prefix('cart')->name('cart.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/add', 'add')->name('add');
-                Route::patch('/{cart}', 'update')->name('update');
+                Route::patch('/update/{cart}', 'update')->name('update');
                 Route::delete('/{cart}', 'destroy')->name('destroy');
             });
 

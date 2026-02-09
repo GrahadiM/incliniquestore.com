@@ -15,12 +15,12 @@ class CategoryController extends Controller
             return redirect()->route('frontend.shop.index');
         }
 
-        $category = Category::where('slug', $slug)->first();
-        $data['products'] = Product::with(['category'])->where('status', 'published')->where('category_id', $category->id)->latest()->paginate(12);
+        $data['category'] = Category::where('slug', $slug)->first();
+        $data['products'] = Product::with(['category'])->where('status', 'published')->where('category_id', $data['category']->id)->latest()->paginate(12);
         $data['categories'] = Category::all();
         $data['all_products_count'] = Product::where('status', 'published')->count();
 
-        return view('frontend.products.index', [
+        return view('frontend.products.category', [
             'data' => $data,
         ]);
     }

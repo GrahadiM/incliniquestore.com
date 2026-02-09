@@ -1,5 +1,5 @@
 
-<div class="bg-white rounded-br-[24px] rounded-tl-[24px] hover:shadow-lg hover:shadow-orange-500/40 transition duration-300 overflow-hidden">
+<div class="bg-white border border-gray-200 rounded-br-[24px] rounded-tl-[24px] hover:shadow-lg hover:shadow-orange-500/40 transition duration-300 overflow-hidden">
     <a href="{{ route('frontend.blog.detail', $news->slug) }}" class="block relative">
         <img
             src="{{ config('app.asset_url') . '/storage/' . $news->thumbnail }}"
