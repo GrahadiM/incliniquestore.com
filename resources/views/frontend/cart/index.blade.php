@@ -1,20 +1,24 @@
 @extends('layouts.frontend')
 
-@section('title', 'Keranjang Belanja')
+@push('meta')
+    @php
+        $title = 'SHOP ALL';
+        $description = 'SHOP ALL';
+        $keywords = 'SHOP ALL';
+    @endphp
+    @include('frontend.partials.meta-home')
+@endpush
 
 @section('content')
-    <section class="py-8 md:py-16 bg-primary-light">
+    <section class="bg-white py-10 md:py-16">
         <div class="max-w-7xl mx-auto px-4">
 
-            {{-- Header --}}
-            <div class="mb-8 text-center">
-                <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-                    Keranjang Belanja
-                </h1>
-                <p class="text-gray-600">
-                    Periksa kembali produk sebelum checkout
-                </p>
-            </div>
+            {{-- Breadcrumb --}}
+            <nav class="text-sm text-gray-500 mb-6">
+                <a href="{{ route('frontend.index') }}" class="hover:text-primary-orange">Home</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-700 font-medium">Cart</span>
+            </nav>
 
             @if ($data->count())
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -24,10 +28,10 @@
                     @foreach ($data as $item)
                     <div
                         id="cart-item-{{ $item->id }}"
-                        class="bg-white p-4 rounded-xl shadow-sm grid grid-cols-12 gap-4 items-center"
+                        class="bg-white border border-gray-200 rounded-br-[12px] rounded-tl-[12px] p-1 shadow-sm grid grid-cols-12 gap-4 items-center"
                     >
                         {{-- PRODUCT --}}
-                        <div class="col-span-12 md:col-span-5 flex gap-4">
+                        <div class="col-span-12 md:col-span-7 flex gap-4">
                             <img
                                 src="{{ config('app.asset_url') . '/storage/' . $item->product->thumbnail }}"
                                 class="w-20 h-20 object-cover rounded-lg border"
@@ -42,14 +46,8 @@
                             </div>
                         </div>
 
-                        {{-- ITEM TOTAL --}}
-                        <div class="col-span-6 md:col-span-2 text-center font-semibold"
-                            id="item-total-{{ $item->id }}">
-                            Rp.{{ number_format($item->product->price * $item->qty, 0, ',', '.') }}
-                        </div>
-
                         {{-- QTY --}}
-                        <div class="col-span-6 md:col-span-2">
+                        <div class="col-span-5 md:col-span-2">
                             <div class="flex justify-center items-center gap-2">
                                 <button
                                     class="qty-btn border w-8 h-8 rounded"
@@ -73,8 +71,14 @@
                             </div>
                         </div>
 
+                        {{-- ITEM TOTAL --}}
+                        <div class="col-span-5 md:col-span-2 text-center font-semibold"
+                            id="item-total-{{ $item->id }}">
+                            Rp.{{ number_format($item->product->price * $item->qty, 0, ',', '.') }}
+                        </div>
+
                         {{-- REMOVE --}}
-                        <div class="col-span-12 md:col-span-1 text-center">
+                        <div class="col-span-2 md:col-span-1 text-center">
                             <button
                                 class="remove-cart-item text-red-500 hover:text-red-700"
                                 data-id="{{ $item->id }}"

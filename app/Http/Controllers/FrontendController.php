@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\News;
 use App\Models\Product;
+use App\Models\BranchStore;
 use Illuminate\Http\Request;
 
 class FrontendController extends Controller
@@ -12,6 +13,7 @@ class FrontendController extends Controller
     {
         $data['products'] = Product::with(['category'])->where('status', 'published')->where('is_featured', 1)->orderByDesc('is_featured')->latest()->limit(4)->get();
         $data['news'] = News::where('status', 'published')->where('is_featured', 1)->orderByDesc('is_featured')->latest()->limit(3)->get();
+        $data['stores'] = BranchStore::where('status', 'active')->get();
 
         return view('frontend.index', [
             'data' => $data
