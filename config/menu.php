@@ -15,14 +15,14 @@ return [
             'label' => 'BLOG',
             'route' => 'frontend.blog.index',
         ],
-        [
-            'label' => 'ABOUT',
-            'route' => 'frontend.about',
-        ],
-        [
-            'label' => 'CAREER',
-            'route' => 'frontend.career.index',
-        ],
+        // [
+        //     'label' => 'ABOUT',
+        //     'route' => 'frontend.about',
+        // ],
+        // [
+        //     'label' => 'CAREER',
+        //     'route' => 'frontend.career.index',
+        // ],
     ],
 
     'bottom_nav' => [

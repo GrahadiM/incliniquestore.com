@@ -349,7 +349,9 @@
     </section> --}}
 
     <!-- Offline Store Locations -->
-    @include('frontend.store.index')
+    <section class="py-16 bg-white">
+        @include('frontend.store.index')
+    </section>
 
     <!-- Featured News -->
     <section class="py-16 bg-primary-light">

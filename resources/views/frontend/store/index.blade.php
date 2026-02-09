@@ -1,5 +1,4 @@
 
-<section class="py-16 bg-white">
     <div class="w-full lg:max-w-7xl mx-auto px-4">
 
         <div class="mb-10">
@@ -85,7 +84,6 @@
 
         </div>
     </div>
-</section>
 
 @push('scripts')
     <script>
