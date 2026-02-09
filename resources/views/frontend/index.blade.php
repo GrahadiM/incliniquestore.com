@@ -14,7 +14,7 @@
 @section('content')
 
     <!-- Hero Section -->
-    <section class="hero-section py-8 rounded-br-[24px]">
+    <section class="hero-section py-8">
         <div class="w-full lg:max-w-7xl mx-auto px-8 flex flex-col lg:flex-row items-center gap-2">
             <div class="w-full lg:w-3/5 xl:w-1/2 mb-10 lg:mb-0">
                 <h1 class="text-4xl lg:text-5xl font-bold text-gray-800 mb-4">
@@ -52,7 +52,7 @@
     </section>
 
     <!-- Skin Type Recommendation -->
-    <section class="py-16 bg-white rounded-tl-[24px] rounded-br-[24px]">
+    <section class="py-16 bg-white">
         <div class="w-full lg:max-w-7xl mx-auto px-4">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">Solusi Cerdas dari Produk sesuai kebutuhan Anda</h2>
