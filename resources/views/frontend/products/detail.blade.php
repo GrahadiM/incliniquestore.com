@@ -186,9 +186,16 @@
             qty += val;
 
             if (qty < 1) qty = 1;
+
             if (qty > MAX_STOCK) {
                 qty = MAX_STOCK;
-                alert('Jumlah melebihi stok yang tersedia!');
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Stok Terbatas',
+                    text: 'Jumlah melebihi stok yang tersedia!',
+                    confirmButtonColor: '#f97316'
+                });
             }
 
             input.value = qty;
@@ -202,6 +209,25 @@
             event.preventDefault();
 
             const qty = getQty();
+
+            if (MAX_STOCK <= 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Stok Habis',
+                    text: 'Produk ini sedang tidak tersedia',
+                    confirmButtonColor: '#ef4444'
+                });
+                return;
+            }
+
+            // Loading state
+            Swal.fire({
+                title: 'Menambahkan ke keranjang...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
             fetch("{{ route('frontend.cart.add') }}", {
                 method: "POST",
@@ -217,12 +243,46 @@
             })
             .then(res => res.json())
             .then(data => {
+                Swal.close();
+
                 if (!data.success) {
-                    alert(data.message || 'Gagal menambahkan ke keranjang');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: data.message || 'Gagal menambahkan ke keranjang',
+                        confirmButtonColor: '#ef4444'
+                    });
                     return;
                 }
 
-                alert('Produk berhasil ditambahkan!');
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil 🎉',
+                    text: 'Produk berhasil ditambahkan ke keranjang',
+                    showCancelButton: true,
+                    confirmButtonText: 'Lihat Keranjang',
+                    cancelButtonText: 'Lanjut Belanja',
+                    confirmButtonColor: '#f97316'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "{{ route('frontend.cart.index') }}";
+                    }
+                });
+
+                // OPTIONAL: update cart badge realtime
+                if (data.cart_count !== undefined) {
+                    const badge = document.getElementById('cart-count');
+                    if (badge) badge.innerText = data.cart_count;
+                }
+            })
+            .catch(() => {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Terjadi kesalahan sistem',
+                    confirmButtonColor: '#ef4444'
+                });
             });
         }
     </script>

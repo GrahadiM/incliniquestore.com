@@ -2,9 +2,9 @@
 
 @push('meta')
     @php
-        $title = 'SHOP ALL';
-        $description = 'SHOP ALL';
-        $keywords = 'SHOP ALL';
+        $title = 'Cart';
+        $description = 'Cart';
+        $keywords = 'Cart';
     @endphp
     @include('frontend.partials.meta-home')
 @endpush
@@ -28,7 +28,7 @@
                     @foreach ($data as $item)
                     <div
                         id="cart-item-{{ $item->id }}"
-                        class="bg-white border border-gray-200 rounded-br-[12px] rounded-tl-[12px] p-1 shadow-sm grid grid-cols-12 gap-4 items-center"
+                        class="bg-white border border-gray-300 rounded-br-[12px] rounded-tl-[12px] p-1 shadow-sm grid grid-cols-12 gap-4 items-center"
                     >
                         {{-- PRODUCT --}}
                         <div class="col-span-12 md:col-span-7 flex gap-4">
@@ -37,54 +37,68 @@
                                 class="w-20 h-20 object-cover rounded-lg border"
                             >
                             <div>
-                                <h3 class="font-semibold text-gray-800">
+                                <h3 class="font-semibold line-clamp-2 text-gray-800">
                                     {{ $item->product->name }}
                                 </h3>
-                                <p class="text-sm text-gray-500">
-                                    Rp.{{ number_format($item->product->price, 0, ',', '.') }}
-                                </p>
+                                <div class="grid grid-cols-1 md:grid-cols-12 justify-between items-center">
+                                    <span class="md:col-span-8 inline-flex items-center gap-2 text-green-600 font-medium">
+                                        <i class="fas fa-check-circle"></i>
+                                        Stok tersedia ({{ $item->product->stock }})
+                                    </span>
+                                    <span class="md:col-span-4 text-sm text-gray-500">
+                                        Rp.{{ number_format($item->product->price, 0, ',', '.') }}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
-                        {{-- QTY --}}
-                        <div class="col-span-5 md:col-span-2">
-                            <div class="flex justify-center items-center gap-2">
-                                <button
-                                    class="qty-btn border w-8 h-8 rounded"
-                                    data-id="{{ $item->id }}"
-                                    data-action="decrease"
-                                >−</button>
+                        <div class="col-span-12 md:col-span-5 grid grid-cols-6">
+                            <hr class="md:hidden col-span-12 border border-b border-gray-300 mb-2">
 
-                                <span
-                                    id="qty-{{ $item->id }}"
-                                    data-stock="{{ $item->product->stock }}"
-                                    class="w-8 text-center font-semibold"
+                            {{-- ITEM TOTAL --}}
+                            <div class="col-span-3 text-center font-semibold"
+                                id="item-total-{{ $item->id }}">
+                                Rp.{{ number_format($item->product->price * $item->qty, 0, ',', '.') }}
+                            </div>
+
+                            {{-- QTY --}}
+                            <div class="col-span-2">
+                                <div class="flex justify-center items-center gap-2">
+                                    <button
+                                        class="qty-btn text-white bg-primary-orange border border-primary-orange hover:bg-orange-700 w-8 h-8 rounded-md"
+                                        data-id="{{ $item->id }}"
+                                        data-action="decrease"
+                                    >
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+
+                                    <span
+                                        id="qty-{{ $item->id }}"
+                                        data-stock="{{ $item->product->stock }}"
+                                        class="w-8 text-center font-semibold"
+                                    >
+                                        {{ $item->qty }}
+                                    </span>
+
+                                    <button
+                                        class="qty-btn text-white bg-primary-orange border border-primary-orange hover:bg-orange-700 w-8 h-8 rounded-md"
+                                        data-id="{{ $item->id }}"
+                                        data-action="increase"
+                                    >
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- REMOVE --}}
+                            <div class="col-span-1 text-center">
+                                <button
+                                    class="remove-cart-item text-white bg-red-500 hover:bg-red-700 border border-gray-300 w-8 h-8 rounded-md"
+                                    data-id="{{ $item->id }}"
                                 >
-                                    {{ $item->qty }}
-                                </span>
-
-                                <button
-                                    class="qty-btn border w-8 h-8 rounded"
-                                    data-id="{{ $item->id }}"
-                                    data-action="increase"
-                                >+</button>
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
-                        </div>
-
-                        {{-- ITEM TOTAL --}}
-                        <div class="col-span-5 md:col-span-2 text-center font-semibold"
-                            id="item-total-{{ $item->id }}">
-                            Rp.{{ number_format($item->product->price * $item->qty, 0, ',', '.') }}
-                        </div>
-
-                        {{-- REMOVE --}}
-                        <div class="col-span-2 md:col-span-1 text-center">
-                            <button
-                                class="remove-cart-item text-red-500 hover:text-red-700"
-                                data-id="{{ $item->id }}"
-                            >
-                                <i class="fas fa-trash"></i>
-                            </button>
                         </div>
                     </div>
                     @endforeach
@@ -92,10 +106,24 @@
 
                 {{-- SUMMARY --}}
                 <div>
-                    <div class="bg-white p-6 rounded-xl shadow-sm sticky top-24">
+                    <div class="bg-white border border-gray-300 rounded-br-[12px] rounded-tl-[12px] p-4 shadow-sm sticky top-24">
                         <h3 class="text-lg font-bold mb-4">Ringkasan</h3>
 
                         <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span>Biaya Pajak (10%)</span>
+                                <span id="tax">
+                                    Rp.{{ number_format($tax, 0, ',', '.') }}
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between">
+                                <span>Biaya Pengiriman</span>
+                                <span id="shipping">
+                                    Rp.{{ number_format($shipping, 0, ',', '.') }}
+                                </span>
+                            </div>
+
                             <div class="flex justify-between">
                                 <span>Subtotal</span>
                                 <strong id="cart-subtotal">
@@ -103,36 +131,23 @@
                                 </strong>
                             </div>
 
-                            <div class="flex justify-between">
-                                <span>Pajak</span>
-                                <span id="tax">
-                                    Rp.{{ number_format($tax, 0, ',', '.') }}
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between">
-                                <span>Ongkir</span>
-                                <span id="shipping">
-                                    Rp.{{ number_format($shipping, 0, ',', '.') }}
-                                </span>
-                            </div>
-
-                            <hr>
+                            <hr class="border-dashed border-b border-gray-300">
 
                             <div class="flex justify-between font-bold text-lg">
-                                <span>Total</span>
+                                <span>Total Pembayaran</span>
                                 <span id="cart-total">
                                     Rp.{{ number_format($total, 0, ',', '.') }}
                                 </span>
                             </div>
-
-                            <a
-                                href="{{ route('frontend.checkout.index') }}"
-                                class="block w-full text-center bg-primary text-white py-3 rounded-lg mt-4"
-                            >
-                                Checkout
-                            </a>
                         </div>
+
+                        <a
+                            href="{{ route('frontend.checkout.index') }}"
+                            class="block w-full text-center font-semibold bg-primary-orange text-white py-3 rounded-lg hover:shadow-lg hover:shadow-orange-500/50 transition duration-300 mt-6"
+                        >
+                            <i class="fas fa-credit-card mr-2"></i>
+                            Bayar
+                        </a>
                     </div>
                 </div>
 
@@ -168,16 +183,37 @@
                 const stock = parseInt(qtyEl.dataset.stock);
                 let qty = parseInt(qtyEl.textContent);
 
-                // VALIDASI STOCK FRONTEND
-                if (action === 'increase' && qty >= stock) {
+                // VALIDASI STOCK FRONTEND === 0
+                if (action === 'increase' && stock === 0) {
                     Swal.fire({
                         icon: 'warning',
-                        title: 'Stok Tidak Cukup',
-                        text: `Stok tersedia hanya ${stock}`,
+                        title: 'Stok Sudah Habis',
+                        text: 'Silahkan pilih produk lain',
                         confirmButtonColor: '#f97316'
                     });
                     return;
                 }
+                // VALIDASI STOCK FRONTEND == QTY
+                if (action === 'increase' && qty == stock) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Stok Tidak Cukup',
+                        text: `Jumlah stok yang tersedia tersisa ${stock} item`,
+                        confirmButtonColor: '#f97316'
+                    });
+                    return;
+                }
+
+                // VALIDASI STOCK FRONTEND > QTY
+                // if (action === 'increase' && qty > stock) {
+                //     Swal.fire({
+                //         icon: 'warning',
+                //         title: 'Stok Tidak Cukup',
+                //         text: `Stok tersedia hanya ${stock}`,
+                //         confirmButtonColor: '#f97316'
+                //     });
+                //     return;
+                // }
 
                 if (action === 'increase') qty++;
                 if (action === 'decrease' && qty > 1) qty--;

@@ -11,11 +11,31 @@ class CartController extends Controller
 {
     public function index()
     {
+        $items = Cart::with('product')->where('user_id', auth()->id())->get();
+
+        foreach ($items as $item) {
+            // Jika produk dihapus / stok 0 → hapus cart
+            if (!$item->product || $item->product->stock <= 0) {
+                $item->delete();
+                continue;
+            }
+
+            // Jika qty > stok → set ke stok maksimal
+            if ($item->qty > $item->product->stock) {
+                $item->update([
+                    'qty' => $item->product->stock
+                ]);
+            }
+        }
+
+        // Reload setelah sync
         $data = Cart::with('product')->where('user_id', auth()->id())->get();
 
         $subtotal = $data->sum(fn ($item) => $item->product->price * $item->qty);
-        $tax = $data->count() ? $subtotal * 0.1 : 0; // tax 10%
-        $shipping = $data->count() ? 12000 : 0; // flat shipping rate
+        // Pajak 10%
+        $tax = $data->count() ? $subtotal * 0.1 : 0;
+        // Biaya pengiriman
+        $shipping = $data->count() ? 12000 : 0;
 
         return view('frontend.cart.index', [
             'data' => $data,
@@ -33,7 +53,7 @@ class CartController extends Controller
                 'success' => false,
                 'redirect' => route('login'),
                 'message' => 'Silakan login terlebih dahulu'
-            ], 401);
+            ], 403);
         }
 
         $request->validate([
@@ -43,10 +63,15 @@ class CartController extends Controller
 
         $product = Product::findOrFail($request->product_id);
 
-        if ($request->qty > $product->stock) {
+        // STOK HABIS → TOLAK
+        if ($product->stock <= 0) {
+            Cart::where('user_id', auth()->id())
+                ->where('product_id', $product->id)
+                ->delete();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Stok tersedia hanya ' . $product->stock
+                'message' => 'Produk sedang habis'
             ], 422);
         }
 
@@ -58,47 +83,60 @@ class CartController extends Controller
             ['qty' => 0]
         );
 
-        if (($cart->qty + $request->qty) > $product->stock) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Jumlah melebihi stok'
-            ], 422);
+        $newQty = $cart->qty + $request->qty;
+
+        // JIKA MELEBIHI STOK → SET KE STOK MAKS
+        if ($newQty > $product->stock) {
+            $newQty = $product->stock;
         }
 
-        $cart->increment('qty', $request->qty);
+        $cart->update([
+            'qty' => $newQty
+        ]);
 
         return $this->cartResponse($cart);
     }
 
-    public function update(Request $request, Cart $cart)
+    public function update(Cart $cart, Request $request)
     {
         if (!auth()->check()) {
             return response()->json([
                 'success' => false,
                 'redirect' => route('login'),
                 'message' => 'Silakan login terlebih dahulu'
-            ], 401);
+            ], 403);
         }
 
         $request->validate([
             'qty' => ['required', 'integer', 'min:1'],
         ]);
 
-        if ($request->qty > $cart->product->stock) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Stok tersedia hanya ' . $cart->product->stock
-            ], 422);
+        $product = $cart->product;
+
+        // PRODUK HILANG / STOK 0 → HAPUS CART
+        if (!$product || $product->stock <= 0) {
+            $cart->delete();
+            return $this->cartResponse();
         }
 
-        $cart->update(['qty' => $request->qty]);
+        $qty = min($request->qty, $product->stock);
+
+        $cart->update([
+            'qty' => $qty
+        ]);
 
         return $this->cartResponse($cart);
     }
 
     public function destroy(Cart $cart)
     {
-        abort_if($cart->user_id !== auth()->id(), 403);
+        if (!auth()->check()) {
+            return response()->json([
+                'success' => false,
+                'redirect' => route('login'),
+                'message' => 'Silakan login terlebih dahulu'
+            ], 403);
+        }
 
         $cart->delete();
 
@@ -107,7 +145,7 @@ class CartController extends Controller
 
     private function cartResponse(?Cart $cart = null)
     {
-        $items = Cart::with('product')->where('user_id', auth()->id())->get();
+        $items = Cart::with('product')->where('user_id', auth()->id())->get()->filter(fn ($i) => $i->product && $i->product->stock > 0);
 
         $subtotal = $items->sum(fn ($i) => $i->product->price * $i->qty);
         $tax = $subtotal > 0 ? $subtotal * 0.1 : 0;
