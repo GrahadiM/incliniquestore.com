@@ -57,7 +57,6 @@ Route::middleware('auth')->group(function () {
             Route::controller(App\Http\Controllers\Frontend\CheckoutController::class)->prefix('checkout')->name('checkout.')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/', 'store')->name('store');
-                Route::post('/success', 'success')->name('success');
             });
 
             Route::controller(App\Http\Controllers\Frontend\OrderTrackingController::class)->prefix('order-tracking')->name('order.tracking.')->group(function () {
