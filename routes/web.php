@@ -15,8 +15,9 @@ Route::name('frontend.')->group(function () {
         Route::get('/terms-and-conditions', 'termsAndConditions')->name('terms.and.conditions');
     });
 
-    Route::controller(App\Http\Controllers\Frontend\LocationController::class)->group(function () {
-        Route::get('/locations', 'index')->name('locations.index');
+    Route::controller(App\Http\Controllers\Frontend\LocationController::class)->prefix('location')->name('location.')->group(function () {
+        // Route::get('/', 'index')->name('index');
+        Route::post('/set-selected-store', 'selected_store')->name('selected_store');
     });
 
     Route::controller(App\Http\Controllers\Frontend\ProductController::class)->prefix('shop')->name('shop.')->group(function () {

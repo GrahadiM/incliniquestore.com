@@ -8,11 +8,11 @@ return [
             'route' => 'frontend.index',
         ],
         [
-            'label' => 'SHOP',
+            'label' => 'SHOP ALL',
             'route' => 'frontend.shop.index',
         ],
         [
-            'label' => 'BLOG',
+            'label' => 'BEAUTY ARTICLES',
             'route' => 'frontend.blog.index',
         ],
         // [
@@ -34,13 +34,13 @@ return [
         ],
         [
             'key'   => 'shop',
-            'label' => 'Shop',
+            'label' => 'Shop All',
             'route' => 'frontend.shop.index',
             'icon'  => 'fa-shopping-bag',
         ],
         [
             'key'   => 'blog',
-            'label' => 'Blog',
+            'label' => 'Articles',
             'route' => 'frontend.blog.index',
             'icon'  => 'fa-newspaper',
         ],
@@ -73,7 +73,7 @@ return [
         ],
         [
             'key'   => 'blog',
-            'label' => 'BEAUTY INSIDER',
+            'label' => 'BEAUTY ARTICLES',
             'route' => 'frontend.blog.index',
             'icon'  => 'fa-newspaper',
         ],

@@ -25,7 +25,7 @@
             </nav>
 
             {{-- MAIN --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-white rounded-tl-[24px] rounded-br-[24px] p-5 md:p-8 shadow-sm">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 p-2 md:p-4">
 
                 {{-- LEFT: IMAGE --}}
                 <div>
@@ -61,7 +61,7 @@
                 {{-- RIGHT: INFO --}}
                 <div class="flex flex-col">
 
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-3">
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">
                         {{ $data->name }}
                     </h1>
 
@@ -78,13 +78,13 @@
 
                     {{-- PRICE --}}
                     <div class="mb-4">
-                        <span class="text-2xl md:text-3xl font-bold text-primary-red">
+                        <span class="text-xl md:text-2xl font-bold text-primary-red">
                             Rp {{ number_format($data->price, 0, ',', '.') }}
                         </span>
                     </div>
 
                     {{-- STOCK --}}
-                    <div class="mb-6">
+                    <div class="mb-4">
                         @if ($data->stock > 0)
                             <span class="inline-flex items-center gap-2 text-green-600 font-medium">
                                 <i class="fas fa-check-circle"></i>
@@ -99,7 +99,7 @@
                     </div>
 
                     {{-- QTY --}}
-                    <div class="flex items-center gap-4 mb-6">
+                    <div class="flex items-center gap-4 mb-4">
                         <span class="font-medium text-gray-700">Jumlah:</span>
                         <div class="flex items-center border rounded-lg overflow-hidden">
                             <button class="px-4 py-2" onclick="updateQty(-1)">−</button>
@@ -116,7 +116,8 @@
                     </div>
 
                     {{-- CTA --}}
-                    <div class="flex flex-col sm:flex-row gap-1 mt-auto">
+                    {{-- <div class="flex flex-col sm:flex-row gap-1 mt-auto"> --}}
+                    <div class="flex flex-col sm:flex-row gap-1">
                         <button
                             onclick="addToCart({{ $data->id }}, event)"
                             class="flex-1 border border-primary-orange bg-primary-orange text-white text-sm font-semibold py-3 rounded-bl-[48px] rounded-tr-[48px] md:rounded-bl-[12px] md:rounded-tr-[12px] hover:bg-transparent hover:text-primary-orange transition flex items-center justify-center gap-2"
@@ -138,8 +139,8 @@
             </div>
 
             {{-- DESCRIPTION --}}
-            <div class="bg-white rounded-tl-[24px] rounded-br-[24px] shadow-sm p-6 md:p-8 mt-4">
-                <h2 class="text-xl font-semibold text-gray-800 border-b border-gray-200 mb-4">
+            <div class="p-2 md:p-4 mt-4">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-800 border-b-2 border-t-2 border-gray-500 pb-2 pt-2 mb-4">
                     Deskripsi Produk
                 </h2>
 
@@ -148,32 +149,19 @@
                 </article>
             </div>
 
+            {{-- RECOMMENDATIONS --}}
             @if($recommendations->count())
-                <div class="mt-4">
-                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-6">
-                        🤖 Rekomendasi untuk Anda
+                <div class="p-2 md:p-4 mt-4">
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800 border-b-2 border-t-2 border-gray-500 pb-2 pt-2 mb-4">
+                        Rekomendasi Produk
                     </h2>
+                    <span class="text-xs bg-orange-100 text-primary-orange px-2 py-1 rounded-full inline-block mb-6">
+                        Dipilih berdasarkan minat Anda
+                    </span>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         @foreach ($recommendations as $item)
-                            <a
-                                href="{{ route('frontend.shop.detail', $item->slug) }}"
-                                class="bg-white rounded-xl p-3 shadow-sm hover:shadow-lg transition group"
-                            >
-                                <img
-                                    src="{{ config('app.asset_url') . '/storage/' . $item->thumbnail }}"
-                                    alt="{{ $item->name }}"
-                                    class="w-full aspect-square object-cover rounded-lg mb-3"
-                                >
-
-                                <h3 class="text-sm font-semibold text-gray-800 line-clamp-2 group-hover:text-primary-orange">
-                                    {{ $item->name }}
-                                </h3>
-
-                                <p class="text-primary-red font-bold mt-1 text-sm">
-                                    Rp {{ number_format($item->price, 0, ',', '.') }}
-                                </p>
-                            </a>
+                            @include('frontend.partials.product-card', ['product' => $item])
                         @endforeach
                     </div>
                 </div>

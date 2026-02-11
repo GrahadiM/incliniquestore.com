@@ -15,7 +15,7 @@
     </div>
 
     <div class="p-4">
-        <h3 class="font-semibold text-sm text-gray-800 mb-1" onclick="window.location.href='{{ route('frontend.shop.detail', ['slug' => $product?->slug]) }}';">
+        <h3 class="line-clamp-2 font-semibold text-sm text-gray-800 mb-1" onclick="window.location.href='{{ route('frontend.shop.detail', ['slug' => $product?->slug]) }}';">
             {{ $product?->name }}
         </h3>
 

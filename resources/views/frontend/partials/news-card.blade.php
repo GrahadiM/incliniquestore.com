@@ -8,19 +8,19 @@
 
         @if($news->is_featured)
             <span class="absolute top-3 left-3 bg-primary-red text-white text-xs font-semibold px-3 py-1 rounded-br-[8px] rounded-tl-[8px]">
-                FEATURED
+                HOT NEWS
             </span>
         @endif
     </a>
 
     <div class="p-4">
         <h3 class="font-semibold text-base text-gray-800 mb-2 line-clamp-2">
-            <a href="{{ route('frontend.blog.detail', $news->slug) }}">
+            <a href="{{ route('frontend.blog.detail', $news->slug) }}" class="line-clamp-2 hover:text-primary-orange">
                 {{ $news->title }}
             </a>
         </h3>
 
-        <p class="text-sm text-gray-600 mb-4 line-clamp-3">
+        <p class="text-sm text-justify text-gray-600 mb-4 line-clamp-3">
             {{ $news->excerpt }}
         </p>
 
