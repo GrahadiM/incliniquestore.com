@@ -36,13 +36,15 @@ class CartController extends Controller
         $tax = $data->count() ? $subtotal * 0.1 : 0;
         // Biaya pengiriman
         $shipping = $data->count() ? 12000 : 0;
+        // Total
+        $total = $subtotal + $tax + $shipping;
 
         return view('frontend.cart.index', [
             'data' => $data,
             'subtotal' => $subtotal,
             'tax' => $tax,
             'shipping' => $shipping,
-            'total' => $subtotal + $tax + $shipping,
+            'total' => $total,
         ]);
     }
 

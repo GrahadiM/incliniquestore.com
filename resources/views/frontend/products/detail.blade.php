@@ -206,7 +206,7 @@
         }
 
         function addToCart(productId, event) {
-            event.preventDefault();
+            event?.preventDefault();
 
             const qty = getQty();
 
@@ -220,13 +220,11 @@
                 return;
             }
 
-            // Loading state
+            // Show loading
             Swal.fire({
                 title: 'Menambahkan ke keranjang...',
                 allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
+                didOpen: () => Swal.showLoading()
             });
 
             fetch("{{ route('frontend.cart.add') }}", {
@@ -234,27 +232,27 @@
                 headers: {
                     "X-CSRF-TOKEN": "{{ csrf_token() }}",
                     "Content-Type": "application/json",
-                    "Accept": "application/json",
+                    "Accept": "application/json"
                 },
                 body: JSON.stringify({
                     product_id: productId,
                     qty: qty
                 })
             })
-            .then(res => res.json())
-            .then(data => {
-                Swal.close();
+            .then(async response => {
+                const data = await response.json().catch(() => ({}));
 
-                if (!data.success) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal',
-                        text: data.message || 'Gagal menambahkan ke keranjang',
-                        confirmButtonColor: '#ef4444'
-                    });
-                    return;
+                if (response.status === 401) {
+                    throw { type: 'auth' };
                 }
 
+                if (!response.ok || !data.success) {
+                    throw { type: 'error', message: data.message };
+                }
+
+                return data;
+            })
+            .then(data => {
                 Swal.fire({
                     icon: 'success',
                     title: 'Berhasil 🎉',
@@ -263,24 +261,36 @@
                     confirmButtonText: 'Lihat Keranjang',
                     cancelButtonText: 'Lanjut Belanja',
                     confirmButtonColor: '#f97316'
-                }).then((result) => {
+                }).then(result => {
                     if (result.isConfirmed) {
                         window.location.href = "{{ route('frontend.cart.index') }}";
                     }
                 });
 
-                // OPTIONAL: update cart badge realtime
+                // Update cart badge (optional)
                 if (data.cart_count !== undefined) {
                     const badge = document.getElementById('cart-count');
                     if (badge) badge.innerText = data.cart_count;
                 }
             })
-            .catch(() => {
-                Swal.close();
+            .catch(err => {
+                if (err.type === 'auth') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Login Diperlukan',
+                        text: 'Silakan login terlebih dahulu untuk menambahkan produk ke keranjang Anda!',
+                        confirmButtonText: 'Login',
+                        confirmButtonColor: '#f97316'
+                    }).then(() => {
+                        window.location.href = "{{ route('login') }}";
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Terjadi kesalahan sistem',
+                    title: 'Gagal',
+                    text: err.message || 'Terjadi kesalahan sistem',
                     confirmButtonColor: '#ef4444'
                 });
             });

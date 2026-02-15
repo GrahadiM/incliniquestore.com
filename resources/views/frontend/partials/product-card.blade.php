@@ -94,7 +94,7 @@
                     Swal.fire({
                         icon: 'warning',
                         title: 'Login Diperlukan',
-                        text: 'Silakan login terlebih dahulu untuk menambahkan produk ke keranjang.',
+                        text: 'Silakan login terlebih dahulu untuk menambahkan produk ke keranjang Anda!',
                         confirmButtonText: 'Login',
                         confirmButtonColor: '#f97316'
                     }).then(() => {

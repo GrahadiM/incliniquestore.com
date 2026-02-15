@@ -4,10 +4,13 @@ namespace App\Providers;
 
 use App\Models\Product;
 use App\Models\WebSetting;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -38,6 +41,39 @@ class AppServiceProvider extends ServiceProvider
 
         Blade::directive('endrole', function () {
             return "<?php endif; ?>";
+        });
+
+        $this->configureRateLimiting();
+    }
+
+    protected function configureRateLimiting(): void
+    {
+        /**
+         * GLOBAL RATE LIMITER
+         * Berlaku untuk seluruh aplikasi
+         */
+        RateLimiter::for('global', function (Request $request) {
+            return Limit::perMinute(120)
+                ->by(
+                    optional($request->user())->id
+                    ?: $request->ip()
+                );
+        });
+
+        /**
+         * REGISTER RATE LIMITER (ANTI SPAM)
+         */
+        RateLimiter::for('register', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
+        /**
+         * LOGIN RATE LIMITER
+         */
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinute(10)->by(
+                $request->input('email') . '|' . $request->ip()
+            );
         });
     }
 }

@@ -28,6 +28,21 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $user = Auth::user();
+
+        // Restrict admin/super-admin login from this website!
+        if ($user->hasAnyRole(['super-admin', 'admin'])) {
+
+            Auth::logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('login')
+                ->with('role_error', 'Akun anda tidak diizinkan login melalui website ini!');
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

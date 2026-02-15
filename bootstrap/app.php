@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RolesUser::class,
             'active.user' => \App\Http\Middleware\ActiveUser::class,
+            'block.admin.login' => \App\Http\Middleware\BlockAdminLogin::class,
+            // 'throttle' => \App\Http\Middleware\ThrottleRequests::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

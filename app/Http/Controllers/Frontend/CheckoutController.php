@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Frontend;
 
+use Carbon\Carbon;
 use App\Models\Cart;
+use Midtrans\Config;
 use App\Models\Order;
 use App\Models\Address;
 use App\Models\Voucher;
@@ -17,21 +19,64 @@ class CheckoutController extends Controller
     public function index()
     {
         $user = auth()->user();
-
-        $cartItems = Cart::with('product')
-            ->where('user_id', $user->id)
-            ->get();
+        $addresses = Address::where('user_id', $user->id)->where('status', 'active')->orderByDesc('is_default')->get();
+        $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
 
         abort_if($cartItems->isEmpty(), 403, 'Cart kosong');
 
-        $addresses = Address::where('user_id', $user->id)
-            ->where('status', 'active')
-            ->get();
+        foreach ($cartItems as $item) {
+            abort_if($item->product->stock < $item->qty, 409, 'Stok produk tidak mencukupi');
+        }
 
-        return view('frontend.checkout.index', compact(
-            'cartItems',
-            'addresses'
-        ));
+        $subtotal = $cartItems->sum(fn($i) => $i->qty * $i->product->price);
+        $tax = $subtotal * 0.1;
+        $shipping = 12000;
+        $total = $subtotal + $tax + $shipping;
+
+        return view('frontend.checkout.index', [
+            'cartItems' => $cartItems,
+            'addresses' => $addresses,
+            'subtotal' => $subtotal,
+            'tax' => $tax,
+            'shipping' => $shipping,
+            'total' => $total,
+        ]);
+    }
+
+    public function applyVoucher(Request $request)
+    {
+        $request->validate(['voucher' => 'required|string']);
+        $user = auth()->user();
+        $now = Carbon::now();
+
+        $voucher = Voucher::where('code', $request->voucher)->where('status', 'active')->first();
+
+        if (!$voucher) {
+            return response()->json(['valid' => false, 'message' => 'Voucher tidak ditemukan']);
+        }
+
+        if ($voucher->member_level_id && $voucher->member_level_id !== $user->member_level_id) {
+            return response()->json(['valid' => false, 'message' => 'Voucher tidak sesuai level member']);
+        }
+
+        if ($voucher->quota !== null && $voucher->used >= $voucher->quota) {
+            return response()->json(['valid' => false, 'message' => 'Voucher sudah habis']);
+        }
+
+        if ($voucher->start_date && $now->lt($voucher->start_date)) {
+            return response()->json(['valid' => false, 'message' => 'Voucher belum berlaku']);
+        }
+
+        if ($voucher->end_date && $now->gt($voucher->end_date)) {
+            return response()->json(['valid' => false, 'message' => 'Voucher sudah kedaluwarsa']);
+        }
+
+        return response()->json([
+            'valid' => true,
+            'type' => $voucher->type,
+            'value' => $voucher->value,
+            'message' => 'Voucher berhasil digunakan'
+        ]);
     }
 
     public function store(Request $request)
@@ -39,76 +84,44 @@ class CheckoutController extends Controller
         $user = auth()->user();
 
         $request->validate([
-            'address_id' => ['required', 'exists:addresses,id'],
-            'voucher_code' => ['nullable', 'string'],
+            'address_id' => 'required|exists:addresses,id',
+            'voucher_code' => 'nullable|string'
         ]);
 
-        DB::transaction(function () use ($request, $user) {
+        $result = DB::transaction(function () use ($request, $user) {
 
-            /** =============================
-             * 1. AMBIL CART + LOCK PRODUCT
-             * ============================= */
             $cartItems = Cart::with('product')
                 ->where('user_id', $user->id)
                 ->lockForUpdate()
                 ->get();
 
-            if ($cartItems->isEmpty()) {
-                throw new \Exception('Cart kosong');
-            }
+            abort_if($cartItems->isEmpty(), 403);
 
             $subtotal = 0;
-
             foreach ($cartItems as $item) {
-                if ($item->product->stock < $item->qty) {
-                    throw new \Exception(
-                        "Stok {$item->product->name} tidak mencukupi"
-                    );
-                }
-
+                abort_if($item->product->stock < $item->qty, 409);
                 $subtotal += $item->qty * $item->product->price;
             }
 
-            /** =============================
-             * 2. VOUCHER VALIDATION
-             * ============================= */
             $discount = 0;
             $voucher = null;
 
             if ($request->voucher_code) {
                 $voucher = Voucher::where('code', $request->voucher_code)
                     ->where('status', 'active')
-                    ->where(function ($q) use ($user) {
-                        $q->whereNull('member_level_id')
-                        ->orWhere('member_level_id', $user->member_level_id);
-                    })
-                    ->where(function ($q) {
-                        $q->whereNull('start_date')
-                        ->orWhere('start_date', '<=', now());
-                    })
-                    ->where(function ($q) {
-                        $q->whereNull('end_date')
-                        ->orWhere('end_date', '>=', now());
-                    })
-                    ->where(function ($q) {
-                        $q->whereNull('quota')
-                        ->orWhereColumn('used', '<', 'quota');
-                    })
                     ->firstOrFail();
 
-                if ($subtotal < $voucher->min_transaction) {
-                    throw new \Exception('Minimal transaksi tidak terpenuhi');
-                }
-
                 $discount = $voucher->type === 'percent'
-                    ? ($subtotal * $voucher->value / 100)
+                    ? $subtotal * $voucher->value / 100
                     : $voucher->value;
             }
 
-            /** =============================
-             * 3. AUTO SELECT NEAREST STORE
-             * ============================= */
-            $address = Address::findOrFail($request->address_id);
+            $tax = $subtotal * 0.1;
+            $shipping = 12000;
+
+            $address = Address::where('id', $request->address_id)
+                ->where('user_id', $user->id)
+                ->firstOrFail();
 
             $store = BranchStore::selectRaw(
                 "*, (
@@ -121,28 +134,20 @@ class CheckoutController extends Controller
                     )
                 ) AS distance",
                 [$address->latitude, $address->longitude, $address->latitude]
-            )
-            ->where('status', 'active')
-            ->orderBy('distance')
-            ->first();
+            )->where('status', 'active')->orderBy('distance')->first();
 
-            /** =============================
-             * 4. CREATE ORDER
-             * ============================= */
             $order = Order::create([
                 'order_number' => 'ORD-' . now()->format('YmdHis') . rand(100,999),
                 'user_id' => $user->id,
+                'branch_store_id' => $store?->id,
                 'subtotal' => $subtotal,
-                'shipping_cost' => 12000,
+                'shipping_cost' => $shipping,
                 'discount' => $discount,
-                'grand_total' => ($subtotal + 12000) - $discount,
+                'grand_total' => ($subtotal + $tax + $shipping) - $discount,
                 'status' => 'pending',
                 'payment_status' => 'unpaid',
             ]);
 
-            /** =============================
-             * 5. ORDER DETAILS + STOCK LOCK
-             * ============================= */
             foreach ($cartItems as $item) {
                 OrderDetail::create([
                     'order_id' => $order->id,
@@ -152,26 +157,31 @@ class CheckoutController extends Controller
                     'subtotal' => $item->qty * $item->product->price,
                 ]);
 
-                // KURANGI STOK (LOCKED)
                 $item->product->decrement('stock', $item->qty);
             }
 
-            /** =============================
-             * 6. VOUCHER USAGE
-             * ============================= */
-            if ($voucher) {
-                $voucher->increment('used');
-            }
-
-            /** =============================
-             * 7. CLEAR CART
-             * ============================= */
             Cart::where('user_id', $user->id)->delete();
+
+            Config::$serverKey = config('services.midtrans.server_key');
+            Config::$isProduction = false;
+            Config::$isSanitized = true;
+            Config::$is3ds = true;
+
+            $snapToken = Snap::getSnapToken([
+                'transaction_details' => [
+                    'order_id' => $order->order_number,
+                    'gross_amount' => $order->grand_total,
+                ],
+                'customer_details' => [
+                    'first_name' => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->whatsapp,
+                ],
+            ]);
+
+            return $snapToken;
         });
 
-        return response()->json([
-            'success' => true,
-            'redirect' => route('frontend.order.tracking.index')
-        ]);
+        return response()->json(['snap_token' => $result]);
     }
 }

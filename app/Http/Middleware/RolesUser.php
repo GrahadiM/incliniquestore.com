@@ -25,7 +25,7 @@ class RolesUser
 
         // Menggunakan Spatie roles
         if (! $user->hasAnyRole($rolesArray)) {
-            abort(403, 'Unauthorized. Only admin or super-admin can access.');
+            abort(403, 'Unauthorized. Only Customers and Members can access.');
         }
 
         return $next($request);
