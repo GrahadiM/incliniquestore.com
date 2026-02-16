@@ -30,10 +30,10 @@ class AddressController extends Controller
             'receiver_name'     => 'required|string|max:100',
             'phone'             => 'required|string|max:20',
             'address'           => 'required|string',
-            'province_id'       => 'nullable',
-            'regency_id'        => 'nullable',
-            'district_id'       => 'nullable',
-            'sub_district_id'   => 'nullable',
+            'province_id'       => 'required',
+            'regency_id'        => 'required',
+            'district_id'       => 'required',
+            'sub_district_id'   => 'required',
             'province_name'     => 'required|string',
             'regency_name'      => 'required|string',
             'district_name'     => 'required|string',
@@ -59,9 +59,12 @@ class AddressController extends Controller
             'latitude.required'          => 'Latitude harus ditentukan dengan memilih titik pada peta.',
             'longitude.required'         => 'Longitude harus ditentukan dengan memilih titik pada peta.',
         ]);
+        // dd($data);
 
         $user = Auth::user();
-        $user->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+        if ($request->boolean('is_default')) {
+            $user->addresses()->update(['is_default' => false]);
+        }
 
         $user->addresses()->create([
             'label'             => $data['label'],
@@ -79,10 +82,10 @@ class AddressController extends Controller
             'postal_code'       => $data['postal_code'],
             'latitude'          => $data['latitude'],
             'longitude'         => $data['longitude'],
-            'is_default'        => $request->is_default ? true : $address->is_default,
+            'is_default'        => $request->boolean('is_default'),
         ]);
 
-        return redirect()->route('customer.profile.index')->with('success', 'Alamat berhasil ditambahkan');
+        return redirect()->route('customer.profile.index')->with('success', 'Alamat Anda berhasil ditambahkan');
     }
 
     public function edit(Address $address)
@@ -105,10 +108,10 @@ class AddressController extends Controller
             'receiver_name'     => 'required|string|max:100',
             'phone'             => 'required|string|max:20',
             'address'           => 'required|string',
-            'province_id'       => 'nullable',
-            'regency_id'        => 'nullable',
-            'district_id'       => 'nullable',
-            'sub_district_id'   => 'nullable',
+            'province_id'       => 'required',
+            'regency_id'        => 'required',
+            'district_id'       => 'required',
+            'sub_district_id'   => 'required',
             'province_name'     => 'required|string',
             'regency_name'      => 'required|string',
             'district_name'     => 'required|string',
@@ -136,17 +139,19 @@ class AddressController extends Controller
         ]);
 
         $user = Auth::user();
-        $user->addresses()->where('id', '!=', $address->id)->update(['is_default' => false]);
+        if ($request->boolean('is_default')) {
+            $user->addresses()->update(['is_default' => false]);
+        }
 
         $address->update([
             'label'             => $data['label'],
             'receiver_name'     => $data['receiver_name'],
             'phone'             => $data['phone'],
             'address'           => $data['address'],
-            'province_id'       => $data['province_id'],
-            'regency_id'        => $data['regency_id'],
-            'district_id'       => $data['district_id'],
-            'sub_district_id'   => $data['sub_district_id'],
+            'province_id'       => $data['province_id'] ?? $address->province_id,
+            'regency_id'        => $data['regency_id'] ?? $address->regency_id,
+            'district_id'       => $data['district_id'] ?? $address->district_id,
+            'sub_district_id'   => $data['sub_district_id'] ?? $address->sub_district_id,
             'province_name'     => $data['province_name'],
             'regency_name'      => $data['regency_name'],
             'district_name'     => $data['district_name'],
@@ -157,16 +162,26 @@ class AddressController extends Controller
             'is_default'        => $request->is_default ? true : $address->is_default,
         ]);
 
-        return redirect()->route('customer.profile.index')->with('success', 'Alamat berhasil diperbarui');
+        return redirect()->route('customer.profile.index')->with('success', 'Alamat Anda berhasil diperbarui');
     }
 
     public function destroy(Address $address)
     {
         abort_if($address->user_id !== Auth::id(), 403);
-
+        $user = Auth::user();
+        $isDefault = $address->is_default;
         $address->delete();
 
-        return redirect()->route('customer.profile.index')->with('success', 'Alamat berhasil dihapus');
+        // Jika alamat yang dihapus adalah default
+        if ($isDefault) {
+            $newDefault = $user->addresses()->oldest()->first();
+
+            if ($newDefault) {
+                $newDefault->update(['is_default' => true]);
+            }
+        }
+
+        return redirect()->route('customer.profile.index')->with('success', 'Alamat Anda berhasil dihapus');
     }
 
     public function setDefault(Address $address)
@@ -182,6 +197,6 @@ class AddressController extends Controller
         // Set alamat yang dipilih menjadi default
         $address->update(['is_default' => true]);
 
-        return redirect()->route('customer.profile.index')->with('success', 'Alamat berhasil dijadikan default');
+        return redirect()->route('customer.profile.index')->with('success', 'Alamat Utama Anda berhasil diperbarui');
     }
 }

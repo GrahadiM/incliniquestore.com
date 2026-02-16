@@ -121,7 +121,7 @@
 
                         {{-- DEFAULT --}}
                         <div class="mt-4 max-w-md flex items-center gap-2">
-                            <input type="checkbox" name="is_default" id="is_default" class="h-4 w-4 rounded-sm border border-gray-300 accent-orange-500" {{ old('is_default', isset($address) ? $address->is_default : (Auth::user()->addresses->count() <= 1 ? true : false)) ? 'checked' : '' }}>
+                            <input type="checkbox" name="is_default" id="is_default" class="h-4 w-4 rounded-sm border border-gray-300 accent-orange-500">
                             <label for="is_default" class="text-sm text-gray-700">
                                 Jadikan alamat default
                             </label>
@@ -287,9 +287,30 @@
             }
         }
 
-        province.addEventListener('change', () => province.value && loadRegencies(province.value));
-        regency.addEventListener('change', () => regency.value && loadDistricts(regency.value));
-        district.addEventListener('change', () => district.value && loadVillages(district.value));
+        province.addEventListener('change', () => {
+            document.getElementById('province_id').value = province.value;
+            reset(regency, 'Pilih Kabupaten');
+            reset(district, 'Pilih Kecamatan');
+            reset(village, 'Pilih Desa');
+            province.value && loadRegencies(province.value);
+        });
+
+        regency.addEventListener('change', () => {
+            document.getElementById('regency_id').value = regency.value;
+            reset(district, 'Pilih Kecamatan');
+            reset(village, 'Pilih Desa');
+            regency.value && loadDistricts(regency.value);
+        });
+
+        district.addEventListener('change', () => {
+            document.getElementById('district_id').value = district.value;
+            reset(village, 'Pilih Desa');
+            district.value && loadVillages(district.value);
+        });
+
+        village.addEventListener('change', () => {
+            document.getElementById('sub_district_id').value = village.value;
+        });
 
         (async () => {
             await loadProvinces();

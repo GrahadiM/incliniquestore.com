@@ -1,17 +1,31 @@
 
 <aside
     x-data="{
-        open: true,
-        isMobile: window.innerWidth < 768
+        isMobile: window.innerWidth < 768,
+        open: false
     }"
     x-init="
-        open = !isMobile;
+        const isDashboard = {{ request()->routeIs('customer.*') ? 'true' : 'false' }};
+        const savedState = localStorage.getItem('dashboard_menu');
+
+        if (savedState !== null) {
+            open = savedState === 'true';
+        } else if (!isMobile) {
+            open = true;
+        } else {
+            open = isDashboard;
+        }
+
+        $watch('open', value => {
+            localStorage.setItem('dashboard_menu', value);
+        });
+
         window.addEventListener('resize', () => {
             isMobile = window.innerWidth < 768;
             if (!isMobile) open = true;
-        })
+        });
     "
-    class="{{-- sticky top-20 --}} bg-white rounded-md shadow-sm border overflow-hidden"
+    class="bg-white rounded-md shadow-sm border overflow-hidden"
 >
 
     {{-- HEADER --}}

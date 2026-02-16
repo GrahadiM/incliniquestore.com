@@ -62,7 +62,7 @@
                             @endforeach
                         @else
                             <div class="text-center py-2 flex flex-col items-center space-y-4">
-                                <p class="text-gray-500">Belum ada alamat pengiriman</p>
+                                <p class="text-gray-500">Belum ada alamat pengiriman!</p>
                                 <a href="{{ route('customer.address.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-orange text-white font-semibold hover:bg-orange-700 transition">
                                     <i class="fas fa-plus"></i> Tambah Alamat
                                 </a>

@@ -39,7 +39,7 @@ class ProfileController extends Controller
 
         Auth::user()->update($data);
 
-        return redirect()->route('customer.profile.index')->with('success', 'Profil berhasil diperbarui');
+        return redirect()->route('customer.profile.index')->with('success', 'Profile Anda berhasil diperbarui');
     }
 
     public function updatePassword(Request $request)
@@ -64,6 +64,6 @@ class ProfileController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('customer.profile.edit')->with('success', 'Password berhasil diubah');
+        return redirect()->route('customer.profile.edit')->with('success', 'Password Anda berhasil diubah');
     }
 }

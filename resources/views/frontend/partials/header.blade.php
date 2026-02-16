@@ -69,8 +69,7 @@
         <div class="hidden lg:flex items-center space-x-5">
 
             {{-- Search --}}
-            <button id="search-toggle-desktop"
-                class="text-gray-700 hover:text-primary-orange transition">
+            <button id="search-toggle-desktop" class="text-gray-700 hover:text-primary-orange transition">
                 <i class="fas fa-search"></i>
             </button>
 
@@ -101,7 +100,7 @@
 
         <div class="relative mb-6">
             <input type="text" id="search-input" placeholder="Ketik nama produk yang dicari..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-orange focus:ring-2 focus:ring-primary-orange focus:ring-opacity-20">
-            <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-700 hover:text-primary-orange">
+            <button class="absolute right-3 top-3/4 transform -translate-y-1/2 text-gray-700 hover:text-primary-orange">
                 <i class="fas fa-search"></i>
             </button>
         </div>

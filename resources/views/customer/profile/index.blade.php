@@ -131,7 +131,7 @@
                                                 <i class="fas fa-pencil"></i>
                                             </a>
 
-                                            <form method="POST" action="{{ route('customer.address.destroy', $address) }}" onsubmit="return confirm('Hapus alamat ini?')">
+                                            <form method="POST" action="{{ route('customer.address.destroy', $address) }}" class="form-delete-address">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="inline-flex items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 font-medium">
@@ -153,7 +153,7 @@
 @endsection
 
 @push('scripts')
-    @if ($addresses->whereNotNull('latitude')->count() > 0)
+    {{-- @if ($addresses->whereNotNull('latitude')->count() > 0)
     <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}"></script>
     <script>
         @foreach ($addresses as $address)
@@ -170,7 +170,31 @@
             @endif
         @endforeach
     </script>
-    @endif
+    @endif --}}
+
+    <script>
+        document.querySelectorAll('.form-delete-address').forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Hapus Alamat?',
+                    text: 'Alamat ini akan dihapus permanen.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#ef4444', // red-500
+                    cancelButtonColor: '#6b7280',  // gray-500
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 
     @if (session('success'))
         <script>
