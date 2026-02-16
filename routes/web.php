@@ -81,6 +81,7 @@ Route::middleware(['auth', 'block.admin.login'])->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::get('/edit', 'edit')->name('edit');
                 Route::patch('/update', 'update')->name('update');
+                Route::patch('/update-password', 'updatePassword')->name('update.password');
             });
 
             Route::controller(App\Http\Controllers\Customer\AddressController::class)->prefix('address')->name('address.')->group(function () {
@@ -90,6 +91,7 @@ Route::middleware(['auth', 'block.admin.login'])->group(function () {
                 Route::get('/{address}/edit', 'edit')->name('edit');
                 Route::patch('/{address}', 'update')->name('update');
                 Route::delete('/{address}', 'destroy')->name('destroy');
+                Route::post('/{address}/set-default', 'setDefault')->name('setDefault');
             });
 
             Route::controller(App\Http\Controllers\Customer\OrderController::class)->prefix('orders')->name('orders.')->group(function () {

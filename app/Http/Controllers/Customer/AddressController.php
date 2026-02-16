@@ -168,4 +168,20 @@ class AddressController extends Controller
 
         return redirect()->route('customer.profile.index')->with('success', 'Alamat berhasil dihapus');
     }
+
+    public function setDefault(Address $address)
+    {
+        // Pastikan user pemilik alamat
+        abort_if($address->user_id !== Auth::id(), 403);
+
+        $user = Auth::user();
+
+        // Reset semua alamat menjadi bukan default
+        $user->addresses()->update(['is_default' => false]);
+
+        // Set alamat yang dipilih menjadi default
+        $address->update(['is_default' => true]);
+
+        return redirect()->route('customer.profile.index')->with('success', 'Alamat berhasil dijadikan default');
+    }
 }

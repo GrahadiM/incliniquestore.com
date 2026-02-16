@@ -32,7 +32,7 @@
                 <main class="lg:col-span-3 space-y-6">
 
                     {{-- PROFILE CARD --}}
-                    <div class="bg-white rounded-2xl shadow p-6">
+                    <div class="bg-white rounded-md shadow p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="text-lg font-semibold text-gray-800">
                                 Informasi Akun
@@ -69,7 +69,7 @@
                     </div>
 
                     {{-- ADDRESS LIST --}}
-                    <div class="bg-white rounded-2xl shadow p-6">
+                    <div class="bg-white rounded-md shadow p-6">
                         <div class="flex items-center justify-between mb-4">
                             <h2 class="text-lg font-semibold text-gray-800">
                                 Alamat Pengiriman
@@ -80,7 +80,7 @@
                         </div>
 
                         @if ($addresses->isEmpty())
-                            <div class="bg-white rounded-xl border p-10 text-center">
+                            <div class="bg-white rounded-md border p-10 text-center">
                                 <p class="text-gray-600 font-medium">Belum ada alamat tersimpan</p>
                                 <p class="text-sm text-gray-400 mt-1">
                                     Tambahkan alamat untuk mempercepat proses checkout
@@ -89,14 +89,14 @@
                         @else
                             <div class="space-y-4">
                                 @foreach ($addresses as $address)
-                                    <div class="bg-white border rounded-xl p-5 flex flex-col md:flex-row md:items-start md:justify-between gap-4 hover:border-orange-300 transition">
+                                    <div class="bg-white border rounded-md p-5 flex flex-col md:flex-row md:items-start md:justify-between gap-4 hover:border-orange-300 transition">
 
                                         {{-- INFO --}}
                                         <div class="flex-1">
                                             <div class="flex items-center gap-2">
                                                 <p class="font-semibold text-gray-800">{{ $address->label }}</p>
                                                 @if ($address->is_default)
-                                                    <span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                                                    <span class="text-xs border border-green-300 bg-green-100 text-green-700 px-2 py-0.5 rounded-md font-medium">
                                                         Alamat Utama
                                                     </span>
                                                 @endif
@@ -111,21 +111,31 @@
 
                                             {{-- GOOGLE MAPS --}}
                                             {{-- @if ($address->latitude && $address->longitude)
-                                                <div id="map-{{ $address->id }}" class="h-64 rounded-xl mt-4 border"></div>
+                                                <div id="map-{{ $address->id }}" class="h-64 rounded-md mt-4 border"></div>
                                             @endif --}}
                                         </div>
 
                                         {{-- ACTION --}}
                                         <div class="flex md:flex-col justify-end gap-1 text-xs shrink-0">
+                                            {{-- Button set default --}}
+                                            @unless($address->is_default)
+                                                <form method="POST" action="{{ route('customer.address.setDefault', $address) }}">
+                                                    @csrf
+                                                    <button type="submit" class="inline-flex items-center gap-2 bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 font-medium">
+                                                        <i class="fas fa-star"></i>
+                                                    </button>
+                                                </form>
+                                            @endunless
+
                                             <a href="{{ route('customer.address.edit', $address) }}" class="inline-flex items-center gap-2 bg-primary-orange text-white px-3 py-2 rounded-lg hover:bg-orange-600 font-medium">
-                                                <i class="fas fa-pencil"></i> Edit
+                                                <i class="fas fa-pencil"></i>
                                             </a>
 
                                             <form method="POST" action="{{ route('customer.address.destroy', $address) }}" onsubmit="return confirm('Hapus alamat ini?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button class="inline-flex items-center gap-2 bg-red-500 text-white px-3 py-2 rounded-lg hover:bg-red-600 font-medium">
-                                                    <i class="fas fa-trash"></i> Hapus
+                                                    <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         </div>

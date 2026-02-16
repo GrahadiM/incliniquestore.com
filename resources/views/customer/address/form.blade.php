@@ -139,17 +139,15 @@
                         <input type="hidden" id="sub_district_id" name="sub_district_id" value="{{ $address->sub_district_id ?? '' }}">
 
                         {{-- ACTION --}}
-                        <div class="flex items-center justify-end gap-4 pt-6 border-t">
+                        <div class="flex items-center justify-end gap-2 pt-6 border-t">
                             <a href="{{ route('customer.profile.index') }}"
-                                class="px-6 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">
-                                Batal
+                                class="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600">
+                                Kembali
                             </a>
-                            <button
-                                class="px-8 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg font-semibold">
-                                Simpan Alamat
+                            <button class="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600">
+                                Simpan
                             </button>
                         </div>
-
                     </div>
                 </div>
             </form>
