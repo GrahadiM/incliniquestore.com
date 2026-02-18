@@ -37,6 +37,10 @@ Route::middleware('throttle:global')->name('frontend.')->group(function () {
         Route::get('/blog', 'index')->name('blog.index');
         Route::get('/blog/{slug}', 'detail')->name('blog.detail');
     });
+
+    Route::controller(App\Http\Controllers\Frontend\MidtransCallbackController::class)->prefix('payment')->name('payment.')->group(function () {
+        Route::post('/midtrans/callback', 'midtransCallback')->name('midtrans.callback');
+    });
 });
 
 Route::middleware(['auth', 'block.admin.login'])->group(function () {
@@ -99,13 +103,14 @@ Route::middleware(['auth', 'block.admin.login'])->group(function () {
                 Route::get('/datatable', 'datatable')->name('datatable');
                 Route::get('/{order}', 'detail')->name('detail');
                 Route::post('/{order}/cancel', 'cancel')->name('cancel');
+                Route::post('/{order}/payment-token', 'generateSnapToken')->name('generateSnapToken');
             });
         });
     });
 });
 
 /* MIDTRANS CALLBACK */
-// Route::post('/payment/midtrans/callback', [MidtransCallbackController::class, 'handle']);
+// Route::post('/payment/midtrans/callback', [App\Http\Controllers\Frontend\MidtransCallbackController::class, 'handle']);
 
 /* ORDER EXPIRY (CRON) */
 // Route::get('/cron/order-expiry', [OrderExpiryController::class, 'cancelPending']);

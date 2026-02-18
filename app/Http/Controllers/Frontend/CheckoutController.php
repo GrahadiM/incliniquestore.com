@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use Carbon\Carbon;
+use Midtrans\Snap;
 use App\Models\Cart;
 use Midtrans\Config;
 use App\Models\Order;
@@ -22,7 +23,9 @@ class CheckoutController extends Controller
         $addresses = Address::where('user_id', $user->id)->where('status', 'active')->orderByDesc('is_default')->get();
         $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
 
-        abort_if($cartItems->isEmpty(), 403, 'Cart kosong');
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('frontend.cart.index')->with('error', 'Keranjang kosong, silahkan belanja terlebih dahulu!');
+        }
 
         foreach ($cartItems as $item) {
             abort_if($item->product->stock < $item->qty, 409, 'Stok produk tidak mencukupi');
@@ -40,6 +43,19 @@ class CheckoutController extends Controller
             'tax' => $tax,
             'shipping' => $shipping,
             'total' => $total,
+        ]);
+    }
+
+    public function payment(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403, 'Anda tidak diizinkan mengakses halaman ini.');
+        }
+
+        return view('frontend.checkout.payment', [
+            'order' => $order,
+            'orderDetails' => $order->orderDetails()->with('product')->get(),
+            'store' => $order->branchStore,
         ]);
     }
 
@@ -81,6 +97,7 @@ class CheckoutController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request->all());
         $user = auth()->user();
 
         $request->validate([
@@ -140,11 +157,12 @@ class CheckoutController extends Controller
                 'order_number' => 'ORD-' . now()->format('YmdHis') . rand(100,999),
                 'user_id' => $user->id,
                 'branch_store_id' => $store?->id,
+                'address_id' => $address->id,
                 'subtotal' => $subtotal,
                 'shipping_cost' => $shipping,
                 'discount' => $discount,
                 'grand_total' => ($subtotal + $tax + $shipping) - $discount,
-                'status' => 'pending',
+                'status' => 'unpaid',
                 'payment_status' => 'unpaid',
             ]);
 
@@ -163,7 +181,7 @@ class CheckoutController extends Controller
             Cart::where('user_id', $user->id)->delete();
 
             Config::$serverKey = config('services.midtrans.server_key');
-            Config::$isProduction = false;
+            Config::$isProduction = config('services.midtrans.is_production');
             Config::$isSanitized = true;
             Config::$is3ds = true;
 
@@ -177,11 +195,28 @@ class CheckoutController extends Controller
                     'email' => $user->email,
                     'phone' => $user->whatsapp,
                 ],
+                'item_details' => $order->orderDetails->map(function ($detail) {
+                    return [
+                        'id' => $detail->product_id,
+                        'price' => $detail->price,
+                        'quantity' => $detail->qty,
+                        'name' => $detail->product->name,
+                    ];
+                 })->toArray(),
             ]);
 
-            return $snapToken;
+            $order->update(['snap_token' => $snapToken]);
+
+            return [
+                'snap_token' => $snapToken,
+                'order_id' => $order->id
+            ];
         });
 
-        return response()->json(['snap_token' => $result]);
+        return response()->json([
+            'success' => true,
+            'snap_token' => $result['snap_token'],
+            'order_id' => $result['order_id']
+        ]);
     }
 }

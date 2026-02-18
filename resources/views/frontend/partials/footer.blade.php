@@ -8,11 +8,11 @@
                 <p class="text-md text-justify text-gray-300 mb-4">
                     Rangkaian skincare terbaik dengan formula yang aman dan efektif untuk semua jenis kulit.
                 </p>
-                <div class="flex space-x-4">
-                    <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-tiktok"></i></a>
-                    <a href="#" class="text-gray-300 hover:text-white"><i class="fab fa-twitter"></i></a>
+                <div class="flex">
+                    <a href="#" class="text-2xl text-gray-300 hover:text-white px-2"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-2xl text-gray-300 hover:text-white px-2"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-2xl text-gray-300 hover:text-white px-2"><i class="fab fa-tiktok"></i></a>
+                    <a href="#" class="text-2xl text-gray-300 hover:text-white px-2"><i class="fab fa-twitter"></i></a>
                 </div>
             </div>
 

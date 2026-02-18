@@ -8,14 +8,18 @@ class Order extends Model
 {
     protected $table = 'orders';
     protected $fillable = [
-        'user_id',
         'order_number',
+        'user_id',
+        'branch_store_id',
+        'address_id',
+        'subtotal',
+        'shipping_cost',
+        'discount',
+        'grand_total',
         'status',
-        'total_amount',
-        'shipping_address',
-        'billing_address',
-        'payment_method',
         'payment_status',
+        'payment_method',
+        'snap_token',
     ];
 
     public function user()

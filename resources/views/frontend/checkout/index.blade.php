@@ -221,27 +221,16 @@
                     address_id: address.value,
                     voucher_code: document.getElementById('voucher').value
                 })
-            }).then(r => r.json()).then(res => {
+            })
+            .then(r => r.json())
+            .then(res => {
                 if (res.success) {
-                    // Snap payment
                     snap.pay(res.snap_token, {
                         onSuccess: function(result){
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Pembayaran Berhasil',
-                                text: 'Terima kasih, pesanan anda berhasil dibuat!',
-                                confirmButtonColor: '#f97316'
-                            }).then(() => {
-                                window.location.href = "{{ route('customer.orders.index') }}";
-                            });
+                            window.location.href = "{{ route('customer.orders.index') }}";
                         },
                         onPending: function(result){
-                            Swal.fire({
-                                icon: 'info',
-                                title: 'Pembayaran Pending',
-                                text: 'Silahkan selesaikan pembayaran di halaman Midtrans',
-                                confirmButtonColor: '#f97316'
-                            });
+                            window.location.href = "{{ route('customer.orders.index') }}";
                         },
                         onError: function(result){
                             Swal.fire({

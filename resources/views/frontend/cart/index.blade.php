@@ -21,143 +21,143 @@
             </nav>
 
             @if ($data->count())
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-                {{-- CART ITEMS --}}
-                <div class="lg:col-span-2 space-y-4">
-                    @foreach ($data as $item)
-                    <div id="cart-item-{{ $item->id }}" class="bg-white border border-gray-300 rounded-sm p-2 shadow-sm grid grid-cols-12 gap-4 items-center">
-                        {{-- PRODUCT --}}
-                        <div class="col-span-12 md:col-span-7 flex gap-2">
-                            <img
-                                src="{{ config('app.asset_url') . '/storage/' . $item->product->thumbnail }}"
-                                class="w-20 h-20 object-cover rounded-sm border hover:cursor-pointer"
-                                alt="{{ $item->product->name }}"
-                                onclick="window.location.href='{{ route('frontend.shop.detail', $item->product->slug) }}';"
+                    {{-- CART ITEMS --}}
+                    <div class="lg:col-span-2 space-y-4">
+                        @foreach ($data as $item)
+                            <div id="cart-item-{{ $item->id }}" class="bg-white border border-gray-300 rounded-sm p-2 shadow-sm grid grid-cols-12 gap-4 items-center">
+                                {{-- PRODUCT --}}
+                                <div class="col-span-12 md:col-span-7 flex gap-2">
+                                    <img
+                                        src="{{ config('app.asset_url') . '/storage/' . $item->product->thumbnail }}"
+                                        class="w-20 h-20 object-cover rounded-sm border hover:cursor-pointer"
+                                        alt="{{ $item->product->name }}"
+                                        onclick="window.location.href='{{ route('frontend.shop.detail', $item->product->slug) }}';"
+                                    >
+                                    <div>
+                                        <h3 class="font-semibold line-clamp-2 text-gray-800 hover:cursor-pointer" onclick="window.location.href='{{ route('frontend.shop.detail', $item->product->slug) }}';">
+                                            {{ $item->product->name }}
+                                        </h3>
+                                        <div class="grid grid-cols-1 md:grid-cols-12 justify-between items-center">
+                                            <span class="md:col-span-8 text-sm text-green-600 font-medium inline-flex items-center gap-1">
+                                                <i class="fas fa-check-circle"></i>
+                                                Stok tersedia ({{ $item->product->stock }})
+                                            </span>
+                                            <br class="hidden md:block">
+                                            <span class="md:col-span-4 text-sm text-gray-500">
+                                                Rp.{{ number_format($item->product->price, 0, ',', '.') }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-span-12 md:col-span-5 grid grid-cols-6">
+                                    <hr class="md:hidden col-span-12 border border-b border-gray-300 mb-2">
+
+                                    {{-- QTY --}}
+                                    <div class="col-span-2">
+                                        <div class="flex justify-center items-center gap-2">
+                                            <button
+                                                class="qty-btn text-white bg-primary-orange border border-primary-orange hover:bg-orange-700 w-8 h-8 rounded-md"
+                                                data-id="{{ $item->id }}"
+                                                data-action="decrease"
+                                            >
+                                                <i class="fas fa-minus"></i>
+                                            </button>
+
+                                            <span
+                                                id="qty-{{ $item->id }}"
+                                                data-stock="{{ $item->product->stock }}"
+                                                class="w-8 text-center font-semibold"
+                                            >
+                                                {{ $item->qty }}
+                                            </span>
+
+                                            <button
+                                                class="qty-btn text-white bg-primary-orange border border-primary-orange hover:bg-orange-700 w-8 h-8 rounded-md"
+                                                data-id="{{ $item->id }}"
+                                                data-action="increase"
+                                            >
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {{-- ITEM TOTAL --}}
+                                    <div class="col-span-3 text-center font-semibold"
+                                        id="item-total-{{ $item->id }}">
+                                        Rp.{{ number_format($item->product->price * $item->qty, 0, ',', '.') }}
+                                    </div>
+
+                                    {{-- REMOVE --}}
+                                    <div class="col-span-1 text-center">
+                                        <button
+                                            class="remove-cart-item text-white bg-red-500 hover:bg-red-700 border border-gray-300 w-8 h-8 rounded-md"
+                                            data-id="{{ $item->id }}"
+                                        >
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- SUMMARY --}}
+                    <div>
+                        <div class="bg-white border border-gray-300 rounded-sm p-4 shadow-sm sticky top-24">
+                            <h3 class="text-lg font-bold border-b border-gray-300 pb-2 mb-4">Detail Pembayaran</h3>
+
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span>Biaya Pajak (10%)</span>
+                                    <span id="tax">
+                                        Rp.{{ number_format($tax, 0, ',', '.') }}
+                                    </span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span>Biaya Pengiriman</span>
+                                    <span id="shipping">
+                                        Rp.{{ number_format($shipping, 0, ',', '.') }}
+                                    </span>
+                                </div>
+
+                                <div class="flex justify-between">
+                                    <span>Subtotal</span>
+                                    <span id="cart-subtotal">
+                                        Rp.{{ number_format($subtotal, 0, ',', '.') }}
+                                    </span>
+                                </div>
+
+                                <hr class="border-b border-gray-300">
+
+                                <div class="flex justify-between font-bold text-lg">
+                                    <span>Total Pembayaran</span>
+                                    <span id="cart-total">
+                                        Rp.{{ number_format($total, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <a
+                                href="{{ route('frontend.checkout.index') }}"
+                                class="block w-full text-center font-semibold bg-orange-500 text-white py-3 hover:bg-orange-700 hover:shadow-lg hover:shadow-orange-500/50 transition duration-300 mt-6"
                             >
-                            <div>
-                                <h3 class="font-semibold line-clamp-2 text-gray-800 hover:cursor-pointer" onclick="window.location.href='{{ route('frontend.shop.detail', $item->product->slug) }}';">
-                                    {{ $item->product->name }}
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-12 justify-between items-center">
-                                    <span class="md:col-span-8 text-sm text-green-600 font-medium inline-flex items-center gap-1">
-                                        <i class="fas fa-check-circle"></i>
-                                        Stok tersedia ({{ $item->product->stock }})
-                                    </span>
-                                    <br class="hidden md:block">
-                                    <span class="md:col-span-4 text-sm text-gray-500">
-                                        Rp.{{ number_format($item->product->price, 0, ',', '.') }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-span-12 md:col-span-5 grid grid-cols-6">
-                            <hr class="md:hidden col-span-12 border border-b border-gray-300 mb-2">
-
-                            {{-- QTY --}}
-                            <div class="col-span-2">
-                                <div class="flex justify-center items-center gap-2">
-                                    <button
-                                        class="qty-btn text-white bg-primary-orange border border-primary-orange hover:bg-orange-700 w-8 h-8 rounded-md"
-                                        data-id="{{ $item->id }}"
-                                        data-action="decrease"
-                                    >
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-
-                                    <span
-                                        id="qty-{{ $item->id }}"
-                                        data-stock="{{ $item->product->stock }}"
-                                        class="w-8 text-center font-semibold"
-                                    >
-                                        {{ $item->qty }}
-                                    </span>
-
-                                    <button
-                                        class="qty-btn text-white bg-primary-orange border border-primary-orange hover:bg-orange-700 w-8 h-8 rounded-md"
-                                        data-id="{{ $item->id }}"
-                                        data-action="increase"
-                                    >
-                                        <i class="fas fa-plus"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            {{-- ITEM TOTAL --}}
-                            <div class="col-span-3 text-center font-semibold"
-                                id="item-total-{{ $item->id }}">
-                                Rp.{{ number_format($item->product->price * $item->qty, 0, ',', '.') }}
-                            </div>
-
-                            {{-- REMOVE --}}
-                            <div class="col-span-1 text-center">
-                                <button
-                                    class="remove-cart-item text-white bg-red-500 hover:bg-red-700 border border-gray-300 w-8 h-8 rounded-md"
-                                    data-id="{{ $item->id }}"
-                                >
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
+                                <i class="fas fa-receipt mr-2"></i>
+                                Check Out
+                            </a>
                         </div>
                     </div>
-                    @endforeach
+
                 </div>
-
-                {{-- SUMMARY --}}
-                <div>
-                    <div class="bg-white border border-gray-300 rounded-sm p-4 shadow-sm sticky top-24">
-                        <h3 class="text-lg font-bold border-b border-gray-300 pb-2 mb-4">Detail Pembayaran</h3>
-
-                        <div class="space-y-3">
-                            <div class="flex justify-between">
-                                <span>Biaya Pajak (10%)</span>
-                                <span id="tax">
-                                    Rp.{{ number_format($tax, 0, ',', '.') }}
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between">
-                                <span>Biaya Pengiriman</span>
-                                <span id="shipping">
-                                    Rp.{{ number_format($shipping, 0, ',', '.') }}
-                                </span>
-                            </div>
-
-                            <div class="flex justify-between">
-                                <span>Subtotal</span>
-                                <span id="cart-subtotal">
-                                    Rp.{{ number_format($subtotal, 0, ',', '.') }}
-                                </span>
-                            </div>
-
-                            <hr class="border-b border-gray-300">
-
-                            <div class="flex justify-between font-bold text-lg">
-                                <span>Total Pembayaran</span>
-                                <span id="cart-total">
-                                    Rp.{{ number_format($total, 0, ',', '.') }}
-                                </span>
-                            </div>
-                        </div>
-
-                        <a
-                            href="{{ route('frontend.checkout.index') }}"
-                            class="block w-full text-center font-semibold bg-orange-500 text-white py-3 hover:bg-orange-700 hover:shadow-lg hover:shadow-orange-500/50 transition duration-300 mt-6"
-                        >
-                            <i class="fas fa-receipt mr-2"></i>
-                            Check Out
-                        </a>
-                    </div>
-                </div>
-
-            </div>
             @else
                 <div class="flex flex-col items-center justify-center py-16 space-y-6">
                     <h2 class="text-2xl font-bold text-gray-800">Keranjang Anda Kosong</h2>
                     <p class="text-gray-500 text-justify max-w-lg">
                         Sepertinya Anda belum menambahkan produk apapun ke keranjang.
-                        Mulai jelajahi produk kami dan temukan yang Anda suka!
+                        Mulai jelajahi produk kami dan temukan produk yang Anda inginkan!
                     </p>
 
                     <a href="{{ route('frontend.shop.index') }}"
